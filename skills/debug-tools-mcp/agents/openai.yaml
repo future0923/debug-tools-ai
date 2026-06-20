@@ -1,0 +1,14 @@
+interface:
+  display_name: "DebugTools MCP"
+  short_description: "Invoke Java methods through DebugTools"
+  brand_color: "#2563EB"
+  default_prompt: "Use $debug-tools-mcp to attach DebugTools and invoke this Java method."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "debug-tools"
+      description: "DebugTools IntelliJ MCP tools for JVM attachment, connection inspection, argument template generation, and Java method invocation."
+
+policy:
+  allow_implicit_invocation: true

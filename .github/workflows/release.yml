@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate package
+        run: bash scripts/validate.sh
+
+      - name: Create release archive
+        run: |
+          archive="$(DIST_DIR=dist bash scripts/package-release.sh)"
+          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+        id: archive
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.archive.outputs.archive }}
+          generate_release_notes: true

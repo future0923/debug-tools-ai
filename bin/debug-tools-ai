@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+usage() {
+  cat <<'EOF'
+Usage: debug-tools-ai <command> [options]
+
+Commands:
+  install [flags]      Install local agent integrations. Pass flags to install.sh.
+  upgrade [flags]      Reinstall local integrations from this package. Same flags as install.
+  uninstall [flags]    Remove local integrations. Same flags as install.
+  doctor [flags]       Check package files and local adapter installation state.
+  validate             Run the full package validation suite.
+  check-versions       Check manifest versions and changelog entry.
+  smoke-install        Run installer smoke test with a temporary HOME.
+  pressure             List pressure scenarios and evaluation instructions.
+  pressure-report      Print a pressure run report template.
+  prepublish-check     Run validation and release archive checks before publishing.
+  help                 Show this help.
+
+Examples:
+  debug-tools-ai install --codex
+  debug-tools-ai install --all
+  debug-tools-ai upgrade --all
+  debug-tools-ai uninstall --codex
+  debug-tools-ai doctor
+  debug-tools-ai validate
+  debug-tools-ai pressure
+EOF
+}
+
+command="${1:-help}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
+
+case "$command" in
+  install)
+    bash "$ROOT/install.sh" "$@"
+    ;;
+  upgrade)
+    bash "$ROOT/install.sh" "$@"
+    ;;
+  uninstall)
+    bash "$ROOT/scripts/uninstall.sh" "$@"
+    ;;
+  doctor)
+    bash "$ROOT/scripts/doctor.sh" "$@"
+    ;;
+  validate)
+    bash "$ROOT/scripts/validate.sh"
+    ;;
+  check-versions)
+    bash "$ROOT/scripts/check-versions.sh"
+    ;;
+  smoke-install)
+    bash "$ROOT/scripts/smoke-install.sh"
+    ;;
+  pressure)
+    bash "$ROOT/scripts/list-pressure-scenarios.sh"
+    ;;
+  pressure-report)
+    bash "$ROOT/scripts/new-pressure-report.sh"
+    ;;
+  prepublish-check)
+    bash "$ROOT/scripts/prepublish-check.sh"
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    echo "Unknown command: $command" >&2
+    usage >&2
+    exit 1
+    ;;
+esac

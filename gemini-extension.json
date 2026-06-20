@@ -1,0 +1,7 @@
+{
+  "name": "debug-tools-ai",
+  "description": "AI agent support package for DebugTools MCP workflows",
+  "version": "0.1.0",
+  "contextFileName": "GEMINI.md"
+}
+
