@@ -1,6 +1,6 @@
 # 端到端示例
 
-这些示例描述 `debug-tools-mcp` skill 生效时，AI 应该如何行动。
+这些示例描述 DebugTools 方法调用或 Hotswap skill 生效时，AI 应该如何行动。
 
 ## 无参方法
 
@@ -88,3 +88,29 @@ AI：
 ```
 
 关键点：ClassLoader 查询走 DebugTools agent HTTP，不是 MCP tool。
+
+## Hotswap 运行配置
+
+用户：
+
+```text
+Start the DemoApplication run configuration with DebugTools Hotswap.
+```
+
+AI：
+
+```text
+1. execute_debug_tools_run_configuration:
+   configurationName = DemoApplication
+2. 告知用户 DebugTools Hotswap 启动请求已提交。
+```
+
+如果运行配置名不明确：
+
+```text
+1. list_debug_tools_run_configurations
+2. 多个配置匹配时询问用户选择。
+3. 使用精确配置名调用 execute_debug_tools_run_configuration。
+```
+
+关键点：`success=true` 只表示启动请求已提交，不代表 DebugTools 已经连接。

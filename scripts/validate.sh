@@ -48,12 +48,17 @@ required_files=(
   "tests/pressure/03-classnotfound-http-classloader.md"
   "tests/pressure/04-multiple-classloaders-require-choice.md"
   "tests/pressure/05-complex-args-template-first.md"
-  "skills/debug-tools-mcp/SKILL.md"
-  "skills/debug-tools-mcp/agents/openai.yaml"
-  "skills/debug-tools-mcp/references/args-json.md"
-  "skills/debug-tools-mcp/references/http-classloader.md"
-  "skills/debug-tools-mcp/references/workflow.md"
-  "skills/debug-tools-mcp/references/troubleshooting.md"
+  "tests/pressure/06-hotswap-run-configuration.md"
+  "tests/pressure/07-hotswap-ambiguous-configuration.md"
+  "tests/pressure/08-no-attachable-jvms-offer-hotswap.md"
+  "skills/debug-tools-method-invocation/SKILL.md"
+  "skills/debug-tools-method-invocation/agents/openai.yaml"
+  "skills/debug-tools-method-invocation/references/args-json.md"
+  "skills/debug-tools-method-invocation/references/http-classloader.md"
+  "skills/debug-tools-method-invocation/references/workflow.md"
+  "skills/debug-tools-method-invocation/references/troubleshooting.md"
+  "skills/debug-tools-hotswap/SKILL.md"
+  "skills/debug-tools-hotswap/agents/openai.yaml"
   ".codex-plugin/plugin.json"
   ".claude-plugin/plugin.json"
   ".cursor-plugin/plugin.json"
@@ -76,6 +81,8 @@ tools=(
   "attach_local_jvm"
   "generate_method_args_template"
   "invoke_java_method"
+  "list_debug_tools_run_configurations"
+  "execute_debug_tools_run_configuration"
 )
 
 for tool in "${tools[@]}"; do
@@ -116,13 +123,21 @@ bash "$ROOT/scripts/check-release-readiness.sh"
 bash "$ROOT/scripts/smoke-install.sh"
 bash "$ROOT/scripts/doctor.sh"
 
-if ! grep -q "^---" "$ROOT/skills/debug-tools-mcp/SKILL.md"; then
-  echo "Skill is missing YAML frontmatter" >&2
+for skill_file in "$ROOT/skills/debug-tools-method-invocation/SKILL.md" "$ROOT/skills/debug-tools-hotswap/SKILL.md"; do
+  if ! grep -q "^---" "$skill_file"; then
+    echo "Skill is missing YAML frontmatter: ${skill_file#$ROOT/}" >&2
+    exit 1
+  fi
+done
+
+old_skill_name="debug-tools""-mcp"
+if grep -R "$old_skill_name" "$ROOT/README.md" "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" "$ROOT/GEMINI.md" "$ROOT/docs" "$ROOT/skills" "$ROOT/tests/pressure" "$ROOT/package.json" "$ROOT/gemini-extension.json" >/dev/null; then
+  echo "Old skill name remains in public package files" >&2
   exit 1
 fi
 
-if grep -q "../../docs" "$ROOT/skills/debug-tools-mcp/SKILL.md"; then
-  echo "Skill must not depend on repository-level docs after installation" >&2
+if grep -R "../../docs" "$ROOT/skills/debug-tools-method-invocation/SKILL.md" "$ROOT/skills/debug-tools-hotswap/SKILL.md" >/dev/null; then
+  echo "Skills must not depend on repository-level docs after installation" >&2
   exit 1
 fi
 
@@ -134,7 +149,7 @@ http_terms=(
 )
 
 for term in "${http_terms[@]}"; do
-  if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/skills/debug-tools-mcp" >/dev/null; then
+  if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/skills/debug-tools-method-invocation" >/dev/null; then
     echo "Missing HTTP ClassLoader reference: $term" >&2
     exit 1
   fi
@@ -148,6 +163,14 @@ pressure_terms=(
   "/classLoader/hasClass"
   "list_debug_tools_classloaders"
   "targetMethodContent"
+  "list_debug_tools_run_configurations"
+  "execute_debug_tools_run_configuration"
+  "autoAttachEnabled"
+  "requiresManualAttach"
+  "nextAction"
+  "waitForConnectionMillis"
+  "count=0"
+  "empty jvms"
 )
 
 for term in "${pressure_terms[@]}"; do

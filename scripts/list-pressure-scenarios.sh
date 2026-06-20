@@ -5,13 +5,14 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PRESSURE_DIR="$ROOT/tests/pressure"
 
 cat <<'EOF'
-DebugTools MCP pressure scenarios
+DebugTools AI pressure scenarios
 
-Run each scenario with a fresh AI agent and the skill at:
-  skills/debug-tools-mcp/SKILL.md
+Run each scenario with a fresh AI agent and the relevant skill:
+  skills/debug-tools-method-invocation/SKILL.md
+  skills/debug-tools-hotswap/SKILL.md
 
 Ask the agent:
-  Read the skill, run this scenario mentally, and return PASS or FAIL against the pass criteria with evidence.
+  Read the relevant skill, run this scenario mentally, and return PASS or FAIL against the pass criteria with evidence.
 
 Record results with:
   Scenario: <file>

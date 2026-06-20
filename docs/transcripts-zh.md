@@ -38,7 +38,8 @@ debug-tools-ai uninstall --codex
 预期输出：
 
 ```text
-Removed Codex skill
+Removed Codex method invocation skill
+Removed Codex hotswap skill
 Removed Codex plugin files
 debug-tools-ai uninstall finished
 ```
@@ -60,7 +61,7 @@ Use DebugTools to call com.demo.UserController.getUser.
 预期 Agent 行为：
 
 ```text
-1. 加载 debug-tools-mcp skill。
+1. 加载 debug-tools-method-invocation skill。
 2. 调 list_debug_tools_connections。
 3. 复用匹配的 active connection；只有需要时才 attach。
 4. 参数不明确时调用 generate_method_args_template。
@@ -77,7 +78,8 @@ bash install.sh --opencode
 
 ```text
 ~/.config/opencode/plugins/debug-tools-ai.js
-~/.config/opencode/debug-tools-ai/skills/debug-tools-mcp/SKILL.md
+~/.config/opencode/debug-tools-ai/skills/debug-tools-method-invocation/SKILL.md
+~/.config/opencode/debug-tools-ai/skills/debug-tools-hotswap/SKILL.md
 ```
 
 运行：
@@ -97,5 +99,6 @@ bash install.sh --gemini
 ```text
 ~/.gemini/extensions/debug-tools-ai/GEMINI.md
 ~/.gemini/extensions/debug-tools-ai/gemini-extension.json
-~/.gemini/extensions/debug-tools-ai/skills/debug-tools-mcp/SKILL.md
+~/.gemini/extensions/debug-tools-ai/skills/debug-tools-method-invocation/SKILL.md
+~/.gemini/extensions/debug-tools-ai/skills/debug-tools-hotswap/SKILL.md
 ```

@@ -7,7 +7,7 @@
 [![npm](https://img.shields.io/npm/v/debug-tools-ai)](https://www.npmjs.com/package/debug-tools-ai)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-DebugTools AI teaches Codex, Claude Code, OpenCode, Gemini, Cursor, Kimi, Pi, and other agents how to use DebugTools IntelliJ MCP tools to attach JVMs, generate method argument templates, and invoke Java methods.
+DebugTools AI teaches Codex, Claude Code, OpenCode, Gemini, Cursor, Kimi, Pi, and other agents how to use DebugTools IntelliJ MCP tools to attach JVMs, generate method argument templates, invoke Java methods, and start IntelliJ run configurations with DebugTools Hotswap.
 
 ## 30-Second Start
 
@@ -37,6 +37,13 @@ generate_method_args_template   # only when parameters are needed or unclear
 invoke_java_method
 ```
 
+Hotswap start path:
+
+```text
+list_debug_tools_run_configurations   # only when the run configuration name is unknown or ambiguous
+execute_debug_tools_run_configuration
+```
+
 If there is no active DebugTools connection, the agent should use:
 
 ```text
@@ -54,6 +61,8 @@ Agents using this package can:
 - attach the DebugTools agent to a local JVM
 - generate DebugTools `argsJson` templates from Java method signatures
 - invoke Java methods through DebugTools
+- list IntelliJ run configurations for DebugTools Hotswap launch
+- start a run configuration with the DebugTools Hotswap executor
 - recover from ClassLoader issues through DebugTools HTTP when needed
 
 ## Requirements
@@ -175,11 +184,26 @@ AI: GET /allClassLoader -> POST /classLoader/hasClass -> invoke_java_method with
 
 If multiple ClassLoaders can load the target class, the agent must ask the user which loader identity to use instead of guessing.
 
+Hotswap run configuration:
+
+```text
+User: Start the DemoApplication run configuration with DebugTools Hotswap.
+AI: execute_debug_tools_run_configuration configurationName=DemoApplication
+```
+
+If the run configuration name is unclear, the agent should call `list_debug_tools_run_configurations` first. A successful execute response means startup was requested; it does not prove that DebugTools is already connected.
+
 More examples: [docs/examples.md](docs/examples.md). Install transcripts: [docs/transcripts.md](docs/transcripts.md). Chinese docs: [docs/installation-zh.md](docs/installation-zh.md), [docs/examples-zh.md](docs/examples-zh.md), [docs/transcripts-zh.md](docs/transcripts-zh.md). Spring Boot demo: [examples/spring-boot-demo.md](examples/spring-boot-demo.md).
 
 ## Workflow Reference
 
-Core tool sequence:
+Method invocation skill:
+
+```text
+skills/debug-tools-method-invocation/SKILL.md
+```
+
+Core method invocation sequence:
 
 ```text
 list_debug_tools_connections
@@ -189,11 +213,25 @@ generate_method_args_template
 invoke_java_method
 ```
 
+Hotswap skill:
+
+```text
+skills/debug-tools-hotswap/SKILL.md
+```
+
+Core Hotswap sequence:
+
+```text
+list_debug_tools_run_configurations
+execute_debug_tools_run_configuration
+```
+
 Details:
 
 - Workflow: [docs/workflow.md](docs/workflow.md)
 - Tool contracts: [docs/tool-contracts.md](docs/tool-contracts.md)
-- Skill: [skills/debug-tools-mcp/SKILL.md](skills/debug-tools-mcp/SKILL.md)
+- Method invocation skill: [skills/debug-tools-method-invocation/SKILL.md](skills/debug-tools-method-invocation/SKILL.md)
+- Hotswap skill: [skills/debug-tools-hotswap/SKILL.md](skills/debug-tools-hotswap/SKILL.md)
 
 ## Validation
 

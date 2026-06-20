@@ -1,9 +1,9 @@
 # DebugTools MCP Pressure Run
 
 - Date: 2026-06-19
-- Skill: `skills/debug-tools-mcp/SKILL.md`
+- Skill: `skills/debug-tools-method-invocation/SKILL.md`
 - Runner: Codex with fresh subagents
-- Agent/runtime: subagents with the `debug-tools-mcp` skill attached
+- Agent/runtime: subagents with the `debug-tools-method-invocation` skill attached
 
 ## Results
 

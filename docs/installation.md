@@ -47,10 +47,11 @@ The Codex entrypoint is:
 .codex-plugin/plugin.json
 ```
 
-The bundled skill is:
+The bundled skills are:
 
 ```text
-skills/debug-tools-mcp/SKILL.md
+skills/debug-tools-method-invocation/SKILL.md
+skills/debug-tools-hotswap/SKILL.md
 ```
 
 Local install:
@@ -179,7 +180,8 @@ debug-tools-ai uninstall --all
 The uninstaller removes only paths owned by this package:
 
 ```text
-~/.codex/skills/debug-tools-mcp
+~/.codex/skills/debug-tools-method-invocation
+~/.codex/skills/debug-tools-hotswap
 ~/.codex/plugins/debug-tools-ai
 ~/.claude/debug-tools-ai
 ~/.claude/plugins/debug-tools-ai

@@ -1,6 +1,6 @@
 # End-to-End Examples
 
-These examples show the expected AI behavior when the `debug-tools-mcp` skill is active.
+These examples show the expected AI behavior when the DebugTools method invocation or Hotswap skills are active.
 
 ## No-Arg Method
 
@@ -88,3 +88,29 @@ AI:
 ```
 
 Key point: ClassLoader discovery is direct DebugTools agent HTTP, not an MCP tool.
+
+## Hotswap Run Configuration
+
+User:
+
+```text
+Start the DemoApplication run configuration with DebugTools Hotswap.
+```
+
+AI:
+
+```text
+1. execute_debug_tools_run_configuration:
+   configurationName = DemoApplication
+2. Report that the DebugTools Hotswap startup request was submitted.
+```
+
+If the run configuration name is unclear:
+
+```text
+1. list_debug_tools_run_configurations
+2. Ask the user to choose when multiple configurations match.
+3. execute_debug_tools_run_configuration with the exact selected name.
+```
+
+Key point: `success=true` means startup was requested, not that DebugTools is already connected.

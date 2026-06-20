@@ -6,19 +6,21 @@ PRESSURE_DIR="$ROOT/tests/pressure"
 date_utc="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 cat <<EOF
-# DebugTools MCP Pressure Run
+# DebugTools AI Pressure Run
 
 - Date: $date_utc
-- Skill: skills/debug-tools-mcp/SKILL.md
+- Skills:
+  - skills/debug-tools-method-invocation/SKILL.md
+  - skills/debug-tools-hotswap/SKILL.md
 - Runner:
 - Agent/runtime:
 
 ## Instructions
 
-For each scenario, start from a fresh agent context with the skill attached. Ask:
+For each scenario, start from a fresh agent context with the relevant skill attached. Ask:
 
 \`\`\`text
-Read the debug-tools-mcp skill, run this scenario mentally, and return PASS or FAIL against the pass criteria with evidence.
+Read the relevant DebugTools skill, run this scenario mentally, and return PASS or FAIL against the pass criteria with evidence.
 \`\`\`
 
 ## Results

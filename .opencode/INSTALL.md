@@ -18,9 +18,9 @@ The OpenCode plugin entrypoint is:
 .opencode/plugins/debug-tools-ai.js
 ```
 
-## Workflow
+## Method Invocation Workflow
 
-When operating DebugTools IntelliJ MCP tools, use this chain:
+When invoking Java methods through DebugTools, use this chain:
 
 1. `list_debug_tools_connections`
 2. `list_attachable_jvms` when no suitable connection exists
@@ -29,3 +29,12 @@ When operating DebugTools IntelliJ MCP tools, use this chain:
 5. `invoke_java_method`
 
 Preserve generated parameter names and declaration order when filling `argsJson`.
+
+## Hotswap Workflow
+
+When starting IntelliJ run configurations with DebugTools Hotswap, use this chain:
+
+1. `list_debug_tools_run_configurations` when the configuration name is unknown or ambiguous
+2. `execute_debug_tools_run_configuration`
+
+Treat `success=true` as "startup was requested", not as proof that DebugTools is connected.

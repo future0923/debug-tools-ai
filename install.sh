@@ -35,7 +35,7 @@ bootstrap_from_remote() {
   exit "$status"
 }
 
-if [[ ! -d "$ROOT/skills/debug-tools-mcp" ]]; then
+if [[ ! -d "$ROOT/skills/debug-tools-method-invocation" ]]; then
   bootstrap_from_remote "$@"
 fi
 
@@ -145,7 +145,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ "$install_codex" == true ]]; then
-  copy_dir "$ROOT/skills/debug-tools-mcp" "$HOME_DIR/.codex/skills/debug-tools-mcp"
+  copy_dir "$ROOT/skills" "$HOME_DIR/.codex/skills"
   copy_dir "$ROOT/.codex-plugin" "$HOME_DIR/.codex/plugins/debug-tools-ai/.codex-plugin"
   copy_dir "$ROOT/skills" "$HOME_DIR/.codex/plugins/debug-tools-ai/skills"
   echo "Installed Codex files"

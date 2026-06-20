@@ -24,7 +24,7 @@ export const DebugToolsAiPlugin = async () => {
   ];
 
   const packageRoot = candidateRoots.find((candidate) => {
-    return fs.existsSync(path.join(candidate, 'skills/debug-tools-mcp/SKILL.md'));
+    return fs.existsSync(path.join(candidate, 'skills/debug-tools-method-invocation/SKILL.md'));
   }) || path.resolve(__dirname, '../debug-tools-ai');
 
   const skillsDir = path.join(packageRoot, 'skills');
@@ -40,7 +40,7 @@ export const DebugToolsAiPlugin = async () => {
 
     const workflow = fs.readFileSync(workflowPath, 'utf8');
     bootstrapCache = `<DEBUG_TOOLS_AI>
-Use DebugTools AI when the user asks to inspect DebugTools connections, attach a JVM, generate method arguments, or invoke Java methods.
+Use DebugTools AI when the user asks to inspect DebugTools connections, attach a JVM, generate method arguments, invoke Java methods, list run configurations, or start a run configuration with DebugTools Hotswap.
 
 ${workflow}
 </DEBUG_TOOLS_AI>`;

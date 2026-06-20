@@ -2,7 +2,9 @@
 
 ## Toolset
 
-These tools are exposed under `DebugToolsMethodInvocationToolset` because they all support the Java method invocation workflow: inspect connections, discover JVMs, attach when needed, generate method argument templates, and invoke the target method.
+Method invocation tools are exposed under `DebugToolsMethodInvocationToolset` because they all support the Java method invocation workflow: inspect connections, discover JVMs, attach when needed, generate method argument templates, and invoke the target method.
+
+Hotswap tools are exposed under `DebugToolsHotswapToolset` because they support the separate workflow of listing IntelliJ run configurations and starting one with the DebugTools Hotswap executor.
 
 ## `list_debug_tools_connections`
 
@@ -96,3 +98,43 @@ Common optional fields:
 - `timeoutMillis`
 
 When parameter names, default values, or RunContentDTO types are unclear, call `generate_method_args_template` first and use its `argsJson` result.
+
+## `list_debug_tools_run_configurations`
+
+No required input.
+
+Returns IntelliJ run configurations in the current project:
+
+- `count`
+- `configurations`
+- `configurations[].name`
+- `configurations[].typeName`
+- `configurations[].typeDisplayName`
+- `configurations[].mainClassName`
+- `configurations[].moduleName`
+
+Use this before `execute_debug_tools_run_configuration` when the target run configuration name is missing, partial, or ambiguous. The list is not filtered by DebugTools Hotswap support.
+Optional filters are `moduleName`, `mainClassNameContains`, and `typeDisplayName`.
+
+## `execute_debug_tools_run_configuration`
+
+Required:
+
+- `configurationName`
+
+Starts the named run configuration with the DebugTools Hotswap executor. The name must match an IntelliJ run configuration name exactly.
+
+Returns:
+
+- `success`
+- `configurationName`
+- `executorId`
+- `autoAttachEnabled`
+- `requiresManualAttach`
+- `nextAction`
+- `expectedMainClassName`
+- `expectedModuleName`
+- `message`
+- `availableConfigurationNames`
+
+`success=true` means the startup request was submitted to IntelliJ. It does not prove that the target JVM has started or that DebugTools is connected. Follow `nextAction`: `LIST_DEBUG_TOOLS_CONNECTIONS` means re-check existing connections, and `LIST_ATTACHABLE_JVMS` means locate and attach the started JVM. If `requiresManualAttach=true` or `autoAttachEnabled=false`, do not assume DebugTools will attach automatically after launch.

@@ -1,8 +1,8 @@
 # DebugTools AI for Claude Code
 
-When the user asks to use DebugTools, invoke Java methods, attach JVMs, inspect connections, or generate DebugTools method parameters, follow `docs/workflow.md`.
+When the user asks to use DebugTools, invoke Java methods, attach JVMs, inspect connections, generate DebugTools method parameters, list run configurations, or start a run configuration with DebugTools Hotswap, follow `docs/workflow.md`.
 
-Essential flow:
+Method invocation flow:
 
 1. `list_debug_tools_connections`
 2. `list_attachable_jvms` if no suitable connection exists
@@ -12,3 +12,9 @@ Essential flow:
 
 Preserve generated parameter names and method declaration order. Do not wrap `argsJson` in `targetMethodContent`.
 
+Hotswap flow:
+
+1. `list_debug_tools_run_configurations` if the run configuration name is unknown or ambiguous
+2. `execute_debug_tools_run_configuration`
+
+Treat Hotswap `success=true` as "startup was requested", not as proof that DebugTools is connected.

@@ -1,7 +1,7 @@
 {
   "name": "debug-tools-ai",
   "version": "0.1.0",
-  "description": "AI agent support package for DebugTools MCP workflows: attach JVMs, inspect connections, generate argsJson templates, and invoke Java methods.",
+  "description": "AI agent support package for DebugTools MCP workflows: attach JVMs, inspect connections, generate argsJson templates, invoke Java methods, and start run configurations with DebugTools Hotswap.",
   "author": {
     "name": "DebugTools"
   },
@@ -18,8 +18,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "DebugTools AI",
-    "shortDescription": "Use DebugTools MCP tools to attach JVMs and invoke Java methods",
-    "longDescription": "Guides AI agents through DebugTools IntelliJ MCP workflows: list connections, attach JVMs, generate method argsJson templates, and invoke Java methods.",
+    "shortDescription": "Use DebugTools MCP tools for invocation and Hotswap",
+    "longDescription": "Guides AI agents through DebugTools IntelliJ MCP workflows: list connections, attach JVMs, generate method argsJson templates, invoke Java methods, list run configurations, and start them with DebugTools Hotswap.",
     "developerName": "DebugTools",
     "category": "Coding",
     "capabilities": [
@@ -28,10 +28,10 @@
     ],
     "defaultPrompt": [
       "Use DebugTools to invoke this Java method.",
-      "Attach DebugTools to this JVM and call a method."
+      "Attach DebugTools to this JVM and call a method.",
+      "Start this run configuration with DebugTools Hotswap."
     ],
     "websiteURL": "https://github.com/future0923/debug-tools-ai",
     "brandColor": "#2563EB"
   }
 }
-

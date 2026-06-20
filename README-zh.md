@@ -7,7 +7,7 @@
 [![npm](https://img.shields.io/npm/v/debug-tools-ai)](https://www.npmjs.com/package/debug-tools-ai)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-DebugTools AI 用来教 Codex、Claude Code、OpenCode、Gemini、Cursor、Kimi、Pi 和其他 Agent 使用 DebugTools IntelliJ MCP 工具：附着 JVM、生成方法参数模板、调用 Java 方法。
+DebugTools AI 用来教 Codex、Claude Code、OpenCode、Gemini、Cursor、Kimi、Pi 和其他 Agent 使用 DebugTools IntelliJ MCP 工具：附着 JVM、生成方法参数模板、调用 Java 方法，以及用 DebugTools Hotswap 启动 IntelliJ 运行配置。
 
 ## 30 秒开始
 
@@ -45,6 +45,13 @@ attach_local_jvm
 invoke_java_method
 ```
 
+Hotswap 启动路径：
+
+```text
+list_debug_tools_run_configurations   # 运行配置名未知或不明确时
+execute_debug_tools_run_configuration
+```
+
 ## 它能做什么
 
 安装这个包后，Agent 可以：
@@ -54,6 +61,8 @@ invoke_java_method
 - 将 DebugTools agent 附着到本地 JVM
 - 根据 Java 方法签名生成 DebugTools `argsJson` 参数模板
 - 通过 DebugTools 调用 Java 方法
+- 列出 IntelliJ Run Configuration
+- 使用 DebugTools Hotswap executor 启动运行配置
 - 必要时通过 DebugTools HTTP 恢复 ClassLoader 问题
 
 ## 前置条件
@@ -175,6 +184,15 @@ AI: GET /allClassLoader -> POST /classLoader/hasClass -> invoke_java_method with
 
 如果多个 ClassLoader 都能加载目标类，Agent 必须询问用户使用哪个 loader identity，不能自行猜测。
 
+Hotswap 运行配置：
+
+```text
+User: Start the DemoApplication run configuration with DebugTools Hotswap.
+AI: execute_debug_tools_run_configuration configurationName=DemoApplication
+```
+
+如果运行配置名不明确，Agent 应先调用 `list_debug_tools_run_configurations`。执行成功只表示启动请求已提交，不代表 DebugTools 已经连接。
+
 更多示例：[docs/examples-zh.md](docs/examples-zh.md)。安装和使用 transcript：[docs/transcripts-zh.md](docs/transcripts-zh.md)。Spring Boot demo：[examples/spring-boot-demo.md](examples/spring-boot-demo.md)。
 
 ## 工作流参考
@@ -193,7 +211,8 @@ invoke_java_method
 
 - 工作流：[docs/workflow.md](docs/workflow.md)
 - 工具契约：[docs/tool-contracts.md](docs/tool-contracts.md)
-- Skill：[skills/debug-tools-mcp/SKILL.md](skills/debug-tools-mcp/SKILL.md)
+- 方法调用 Skill：[skills/debug-tools-method-invocation/SKILL.md](skills/debug-tools-method-invocation/SKILL.md)
+- Hotswap Skill：[skills/debug-tools-hotswap/SKILL.md](skills/debug-tools-hotswap/SKILL.md)
 
 ## 校验
 

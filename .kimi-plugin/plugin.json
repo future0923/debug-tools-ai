@@ -1,6 +1,6 @@
 {
   "name": "debug-tools-ai",
-  "description": "AI agent support package for DebugTools MCP workflows",
+  "description": "AI agent support package for DebugTools MCP method invocation and Hotswap workflows",
   "version": "0.1.0",
   "author": {
     "name": "DebugTools"
@@ -15,4 +15,3 @@
     "intellij"
   ]
 }
-

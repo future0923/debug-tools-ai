@@ -13,8 +13,15 @@ Recover:
 
 1. Call `list_debug_tools_connections`.
 2. If no suitable active connection exists, call `list_attachable_jvms`.
-3. Attach the selected PID with `attach_local_jvm`.
-4. Retry `invoke_java_method` with `connectionId` if more than one connection is active.
+3. If attachable JVMs are returned, attach the selected PID with `attach_local_jvm`.
+4. If `list_attachable_jvms` returns `count=0` or an empty `jvms` list, call `list_debug_tools_run_configurations`.
+5. Offer only startup paths supported by actual context. If only DebugTools Hotswap is known, ask whether to start one of the listed run configurations with DebugTools Hotswap.
+6. If IDEA native Run/Debug is also known to be available, ask the user to choose between DebugTools Hotswap and native Run/Debug. Do not include native Run/Debug based only on local developer assumptions.
+7. If launch is authorized and exactly one configuration matches, call `execute_debug_tools_run_configuration` only for the DebugTools Hotswap path.
+8. If the user chooses IDEA native Run/Debug, ask them to start the app in IDEA, then return to step 1 after they report startup is complete.
+9. After Hotswap startup, follow `nextAction`; `success=true` only means startup was requested.
+10. If `requiresManualAttach=true` or `autoAttachEnabled=false`, tell the user DebugTools auto attach is disabled and use `list_attachable_jvms` plus `attach_local_jvm` when startup was already authorized.
+11. Retry `invoke_java_method` only after a suitable DebugTools connection is confirmed; use `connectionId` if more than one connection is active.
 
 ## Wrong Connection
 

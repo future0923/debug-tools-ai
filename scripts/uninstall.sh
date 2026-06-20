@@ -81,7 +81,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ "$uninstall_codex" == true ]]; then
-  remove_path "$HOME_DIR/.codex/skills/debug-tools-mcp" "Codex skill"
+  remove_path "$HOME_DIR/.codex/skills/debug-tools-method-invocation" "Codex method invocation skill"
+  remove_path "$HOME_DIR/.codex/skills/debug-tools-hotswap" "Codex hotswap skill"
   remove_path "$HOME_DIR/.codex/plugins/debug-tools-ai" "Codex plugin files"
 fi
 

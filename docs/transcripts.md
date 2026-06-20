@@ -38,7 +38,8 @@ debug-tools-ai uninstall --codex
 Expected output:
 
 ```text
-Removed Codex skill
+Removed Codex method invocation skill
+Removed Codex hotswap skill
 Removed Codex plugin files
 debug-tools-ai uninstall finished
 ```
@@ -60,7 +61,7 @@ Use DebugTools to call com.demo.UserController.getUser.
 Expected agent behavior:
 
 ```text
-1. Load the debug-tools-mcp skill.
+1. Load the debug-tools-method-invocation skill.
 2. Call list_debug_tools_connections.
 3. Reuse the matching active connection or attach only when needed.
 4. Call generate_method_args_template if parameters are unclear.
@@ -77,7 +78,8 @@ Expected installed files:
 
 ```text
 ~/.config/opencode/plugins/debug-tools-ai.js
-~/.config/opencode/debug-tools-ai/skills/debug-tools-mcp/SKILL.md
+~/.config/opencode/debug-tools-ai/skills/debug-tools-method-invocation/SKILL.md
+~/.config/opencode/debug-tools-ai/skills/debug-tools-hotswap/SKILL.md
 ```
 
 Run:
@@ -97,5 +99,6 @@ Expected installed files:
 ```text
 ~/.gemini/extensions/debug-tools-ai/GEMINI.md
 ~/.gemini/extensions/debug-tools-ai/gemini-extension.json
-~/.gemini/extensions/debug-tools-ai/skills/debug-tools-mcp/SKILL.md
+~/.gemini/extensions/debug-tools-ai/skills/debug-tools-method-invocation/SKILL.md
+~/.gemini/extensions/debug-tools-ai/skills/debug-tools-hotswap/SKILL.md
 ```

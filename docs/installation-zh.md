@@ -47,10 +47,11 @@ Codex 入口：
 .codex-plugin/plugin.json
 ```
 
-内置 skill：
+内置 skills：
 
 ```text
-skills/debug-tools-mcp/SKILL.md
+skills/debug-tools-method-invocation/SKILL.md
+skills/debug-tools-hotswap/SKILL.md
 ```
 
 本地安装：
@@ -179,7 +180,8 @@ debug-tools-ai uninstall --all
 卸载器只删除明确由 debug-tools-ai 安装的路径：
 
 ```text
-~/.codex/skills/debug-tools-mcp
+~/.codex/skills/debug-tools-method-invocation
+~/.codex/skills/debug-tools-hotswap
 ~/.codex/plugins/debug-tools-ai
 ~/.claude/debug-tools-ai
 ~/.claude/plugins/debug-tools-ai
