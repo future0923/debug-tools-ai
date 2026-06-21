@@ -16,8 +16,9 @@ This document is the shared workflow source for AI agents using DebugTools throu
 
 - `list_debug_tools_run_configurations` - list IntelliJ run configurations in the current project.
 - `execute_debug_tools_run_configuration` - start a run configuration with the DebugTools Hotswap executor.
+- `compile_and_reload_modified_files` - trigger IDEA Java Debugger Compile and Reload Modified Files for the HotSwap changed-file/class set.
 
-Use `debug-tools-method-invocation` for connection, attach, argument template, ClassLoader recovery, and Java method invocation tasks. Use `debug-tools-hotswap` for run configuration listing and Hotswap startup tasks.
+Use `debug-tools-method-invocation` for connection, attach, argument template, ClassLoader recovery, and Java method invocation tasks. Use `debug-tools-hotswap` for run configuration listing, Hotswap startup, and compile/reload tasks.
 
 ## Standard Method Invocation Flow
 
@@ -33,6 +34,12 @@ Use `debug-tools-method-invocation` for connection, attach, argument template, C
 10. Fill only the `content` values in the template unless the user explicitly wants to change parameter protocol types.
 11. Call `invoke_java_method` with `connectionId` when there are multiple active connections.
 12. If startup was authorized and manual attach is required, call `attach_local_jvm` with `waitForConnectionMillis` so the result can provide `connectionId` directly.
+
+## Compile And Reload Modified Files
+
+Call `compile_and_reload_modified_files` when the task needs recent Java code changes loaded into an attached Java debugger session. Do not require an explicit user request when reload is the natural next step, and do not use `git status` to decide or restrict the scope.
+
+The "modified files" are IDEA Java Debugger HotSwap changed files/classes tracked since debugger session start or the previous reload. They are not VCS/git modified files. `success=true` means the request was submitted to IDEA; compile and HotSwap progress or failures are reported by IDEA's native UI/notifications. If the tool returns multiple `availableSessionNames`, choose the clear target or ask the user for the session name.
 
 ## Connection Selection Rules
 

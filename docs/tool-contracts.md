@@ -138,3 +138,27 @@ Returns:
 - `availableConfigurationNames`
 
 `success=true` means the startup request was submitted to IntelliJ. It does not prove that the target JVM has started or that DebugTools is connected. Follow `nextAction`: `LIST_DEBUG_TOOLS_CONNECTIONS` means re-check existing connections, and `LIST_ATTACHABLE_JVMS` means locate and attach the started JVM. If `requiresManualAttach=true` or `autoAttachEnabled=false`, do not assume DebugTools will attach automatically after launch.
+
+## `compile_and_reload_modified_files`
+
+No required input.
+
+Optional:
+
+- `projectPath`
+- `sessionName`
+- `compileBeforeReload`
+
+Triggers IDEA Java Debugger Compile and Reload Modified Files for an attached Java debugger session. Call it whenever the task needs recent Java code changes loaded into the debugged JVM; an explicit user request is not required when reload is the natural next step.
+
+The "modified files" are IDEA Java Debugger HotSwap changed files/classes tracked since debugger session start or the previous reload. They are not VCS/git modified files, and clients should not use `git status` to decide whether this tool is safe to call.
+
+Returns:
+
+- `success`
+- `sessionName`
+- `compileBeforeReload`
+- `message`
+- `availableSessionNames`
+
+`success=true` means the compile/reload request was submitted to IDEA. Compile and HotSwap progress or failures are reported by IDEA's native UI/notifications. If multiple sessions are available, the tool returns `availableSessionNames`; choose the clear target or ask for `sessionName`.

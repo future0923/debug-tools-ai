@@ -1,11 +1,11 @@
 ---
 name: debug-tools-hotswap
-description: Use when operating DebugTools IntelliJ MCP Hotswap tools to list IntelliJ run configurations or start a run configuration with the DebugTools Hotswap executor, including requests involving list_debug_tools_run_configurations, execute_debug_tools_run_configuration, DebugTools Hotswap launch, run configuration startup, or starting an app before DebugTools auto attach.
+description: Use when operating DebugTools IntelliJ MCP Hotswap tools to list or start IntelliJ run configurations with DebugTools Hotswap, or to trigger IDEA Java Debugger Compile and Reload Modified Files when a task needs recent code changes loaded into the debugged JVM; includes list_debug_tools_run_configurations, execute_debug_tools_run_configuration, and compile_and_reload_modified_files.
 ---
 
 # DebugTools Hotswap
 
-Use DebugTools Hotswap tools to start IntelliJ run configurations through the DebugTools Hotswap executor. This skill is for launch/startup workflows, not Java method invocation. If the user later asks to inspect DebugTools connections, attach a JVM, generate method args, or invoke a Java method, use the `debug-tools-method-invocation` skill.
+Use DebugTools Hotswap tools to start IntelliJ run configurations through the DebugTools Hotswap executor, and to trigger IDEA Java Debugger Compile and Reload Modified Files when recent code changes need to reach the debugged JVM. This skill is for Hotswap launch and reload workflows, not Java method invocation. If the user later asks to inspect DebugTools connections, attach a JVM, generate method args, or invoke a Java method, use the `debug-tools-method-invocation` skill.
 
 ## Toolset
 
@@ -13,12 +13,13 @@ These tools are exposed under `DebugToolsHotswapToolset`:
 
 - `list_debug_tools_run_configurations`
 - `execute_debug_tools_run_configuration`
+- `compile_and_reload_modified_files`
 
 ## Missing Tool Failure
 
 If this skill is selected but the current Codex tool context does not expose the DebugTools Hotswap MCP tools, stop immediately and report a configuration error. Do not inspect IDE files, run shell process discovery, launch applications directly, or use ordinary Java/Maven/Gradle commands as fallbacks.
 
-Tell the user to check that the IDEA MCP server is available and that the DebugTools IDEA plugin registers `list_debug_tools_run_configurations` and `execute_debug_tools_run_configuration`.
+Tell the user to check that the IDEA MCP server is available and that the DebugTools IDEA plugin registers `list_debug_tools_run_configurations`, `execute_debug_tools_run_configuration`, and `compile_and_reload_modified_files`.
 
 ## Decision Rules
 
@@ -30,6 +31,9 @@ Tell the user to check that the IDEA MCP server is available and that the DebugT
 - Use the returned `nextAction` and `requiresManualAttach` fields to decide the next workflow step. If `requiresManualAttach=true` or `autoAttachEnabled=false`, do not assume DebugTools will attach automatically after launch. Tell the user auto attach is disabled when it matters.
 - If execution fails because the configuration is missing, use `availableConfigurationNames` to help the user choose a valid configuration.
 - If execution fails because the run configuration does not support the DebugTools Hotswap executor, report that limitation instead of retrying unchanged.
+- When the current task needs recent Java code changes loaded into an already-debugged JVM, call `compile_and_reload_modified_files` directly. Do not inspect `git status` to decide its scope, and do not refuse because the worktree has unrelated VCS changes.
+- For `compile_and_reload_modified_files`, "modified files" means IDEA Java Debugger HotSwap changed files/classes tracked since debugger session start or the previous reload; it is not based on VCS/git modified files.
+- If `compile_and_reload_modified_files` returns multiple `availableSessionNames`, ask the user to choose a session or pass the intended `sessionName` when it is already clear.
 
 ## Hotswap Pattern
 
@@ -53,6 +57,10 @@ Tell the user to check that the IDEA MCP server is available and that the DebugT
    - `requiresManualAttach=true` or `autoAttachEnabled=false`: do not claim that DebugTools will auto attach.
 7. For follow-up connection or method calls, switch to `debug-tools-method-invocation`.
 
+## Compile And Reload Pattern
+
+Call `compile_and_reload_modified_files` whenever the task needs IDEA to compile and HotSwap recent changes into an attached Java debugger session, such as after editing Java code and needing live verification. This mirrors IDEA Java Debugger's Compile and Reload Modified Files action. The changed-file set is IDEA's HotSwap increment since session start or the previous reload, not the git/VCS dirty set. Treat `success=true` as a submitted request; compile and HotSwap progress or failures remain in IDEA's native UI/notifications.
+
 ## Result Shape
 
 `list_debug_tools_run_configurations` returns:
@@ -63,6 +71,14 @@ Tell the user to check that the IDEA MCP server is available and that the DebugT
 - `configurations[].typeDisplayName`
 - `configurations[].mainClassName`
 - `configurations[].moduleName`
+
+`compile_and_reload_modified_files` returns:
+
+- `success`
+- `sessionName`
+- `compileBeforeReload`
+- `message`
+- `availableSessionNames`
 
 `execute_debug_tools_run_configuration` returns:
 
