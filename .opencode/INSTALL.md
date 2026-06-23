@@ -36,5 +36,6 @@ When starting IntelliJ run configurations with DebugTools Hotswap, use this chai
 
 1. `list_debug_tools_run_configurations` when the configuration name is unknown or ambiguous
 2. `execute_debug_tools_run_configuration`
+3. `compile_and_reload_modified_files` when recent Java changes need IDEA Java Debugger HotSwap reload
 
 Treat `success=true` as "startup was requested", not as proof that DebugTools is connected.

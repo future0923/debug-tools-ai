@@ -12,4 +12,6 @@ The Hotswap run configuration tool chain is:
 
 `list_debug_tools_run_configurations` -> `execute_debug_tools_run_configuration`
 
+Use `compile_and_reload_modified_files` when recent Java changes need IDEA Java Debugger HotSwap reload.
+
 Skip listing only when the exact run configuration name is already known. Hotswap `success=true` means startup was requested, not that DebugTools is connected.

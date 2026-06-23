@@ -35,6 +35,14 @@ Use `debug-tools-method-invocation` for connection, attach, argument template, C
 11. Call `invoke_java_method` with `connectionId` when there are multiple active connections.
 12. If startup was authorized and manual attach is required, call `attach_local_jvm` with `waitForConnectionMillis` so the result can provide `connectionId` directly.
 
+## Result View Rules
+
+- `invoke_java_method.result` is the ToString view.
+- If the user asks to view the result as JSON, use direct DebugTools HTTP `POST /result/type` with `printResultType=Json`, using `host` and `httpPort` from `list_debug_tools_connections` and `offsetPath` from `invoke_java_method`.
+- If the user asks for DebugTools Debug-style object inspection, use direct DebugTools HTTP `POST /result/type` with `printResultType=Debug`. Fetch children with `POST /result/detail` only when field expansion is needed, using the selected node's `filedOffset` as request `offsetPath`.
+- Do not invent MCP result-view parameters or tools. Result JSON/Debug viewing follows the same direct HTTP pattern as ClassLoader discovery.
+- If `httpPort` or `offsetPath` is missing, report that JSON/Debug result view HTTP is unavailable.
+
 ## Compile And Reload Modified Files
 
 Call `compile_and_reload_modified_files` when the task needs recent Java code changes loaded into an attached Java debugger session. Do not require an explicit user request when reload is the natural next step, and do not use `git status` to decide or restrict the scope.

@@ -99,6 +99,8 @@ Common optional fields:
 
 When parameter names, default values, or RunContentDTO types are unclear, call `generate_method_args_template` first and use its `argsJson` result.
 
+Returns `result` as the ToString view plus `offsetPath` for object result re-rendering. JSON and Debug result views are not MCP fields; when the user asks for them, use direct DebugTools HTTP `POST /result/type` with `printResultType=Json` or `Debug`, using connection `host`/`httpPort` and the returned `offsetPath`.
+
 ## `list_debug_tools_run_configurations`
 
 No required input.

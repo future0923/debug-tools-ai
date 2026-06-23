@@ -51,10 +51,15 @@ required_files=(
   "tests/pressure/06-hotswap-run-configuration.md"
   "tests/pressure/07-hotswap-ambiguous-configuration.md"
   "tests/pressure/08-no-attachable-jvms-offer-hotswap.md"
+  "tests/pressure/09-no-attachable-jvms-offer-native-when-available.md"
+  "tests/pressure/10-missing-mcp-tools-fails-fast.md"
+  "tests/pressure/11-json-result-view-http.md"
+  "tests/pressure/12-debug-result-view-http.md"
   "skills/debug-tools-method-invocation/SKILL.md"
   "skills/debug-tools-method-invocation/agents/openai.yaml"
   "skills/debug-tools-method-invocation/references/args-json.md"
   "skills/debug-tools-method-invocation/references/http-classloader.md"
+  "skills/debug-tools-method-invocation/references/http-result-view.md"
   "skills/debug-tools-method-invocation/references/workflow.md"
   "skills/debug-tools-method-invocation/references/troubleshooting.md"
   "skills/debug-tools-hotswap/SKILL.md"
@@ -83,6 +88,7 @@ tools=(
   "invoke_java_method"
   "list_debug_tools_run_configurations"
   "execute_debug_tools_run_configuration"
+  "compile_and_reload_modified_files"
 )
 
 for tool in "${tools[@]}"; do
@@ -144,13 +150,17 @@ fi
 http_terms=(
   "/allClassLoader"
   "/classLoader/hasClass"
+  "/result/type"
+  "/result/detail"
   "httpPort"
   "classLoaderIdentity"
+  "printResultType"
+  "offsetPath"
 )
 
 for term in "${http_terms[@]}"; do
   if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/skills/debug-tools-method-invocation" >/dev/null; then
-    echo "Missing HTTP ClassLoader reference: $term" >&2
+    echo "Missing DebugTools HTTP reference: $term" >&2
     exit 1
   fi
 done
@@ -171,6 +181,10 @@ pressure_terms=(
   "waitForConnectionMillis"
   "count=0"
   "empty jvms"
+  "/result/type"
+  "/result/detail"
+  "printResultType=Json"
+  "printResultType=Debug"
 )
 
 for term in "${pressure_terms[@]}"; do

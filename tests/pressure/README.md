@@ -56,3 +56,5 @@ Completed run records live in `tests/pressure/runs/`.
 - Starting Hotswap from method invocation without explicit launch authorization.
 - Offering IDEA native Run/Debug startup based on local assumptions instead of actual context.
 - Omitting IDEA native Run/Debug when the scenario explicitly says that startup path is available.
+- Passing invented result-view options to `invoke_java_method` instead of using direct DebugTools HTTP for JSON and Debug views.
+- Expanding Debug result fields without using the selected node's `filedOffset` as `/result/detail` request `offsetPath`.

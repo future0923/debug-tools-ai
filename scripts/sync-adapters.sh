@@ -14,6 +14,7 @@ method_tools=(
 hotswap_tools=(
   "list_debug_tools_run_configurations"
   "execute_debug_tools_run_configuration"
+  "compile_and_reload_modified_files"
 )
 
 adapters=(

@@ -53,7 +53,8 @@ Use `debug-tools-method-invocation` for this workflow.
 ## Hotswap Workflow
 
 Apply this workflow when the user asks to list IntelliJ run configurations or
-start a run configuration with DebugTools Hotswap.
+start a run configuration with DebugTools Hotswap, or when recent Java code
+changes need to be compiled and reloaded into an attached debugger session.
 
 1. If the exact configuration name is unknown or ambiguous, call
    `list_debug_tools_run_configurations`; pass `moduleName`,
@@ -67,6 +68,8 @@ start a run configuration with DebugTools Hotswap.
    is connected.
 6. Follow `nextAction`; if `requiresManualAttach=true` or
    `autoAttachEnabled=false`, do not assume DebugTools will attach automatically.
+7. Call `compile_and_reload_modified_files` when the task needs IDEA Java
+   Debugger Compile and Reload Modified Files for an attached debugger session.
 
 Use `debug-tools-hotswap` for this workflow. Switch back to
 `debug-tools-method-invocation` only when the user asks to inspect connections,

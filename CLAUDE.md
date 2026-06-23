@@ -16,5 +16,6 @@ Hotswap flow:
 
 1. `list_debug_tools_run_configurations` if the run configuration name is unknown or ambiguous
 2. `execute_debug_tools_run_configuration`
+3. `compile_and_reload_modified_files` when recent Java changes need IDEA Java Debugger HotSwap reload
 
 Treat Hotswap `success=true` as "startup was requested", not as proof that DebugTools is connected.
