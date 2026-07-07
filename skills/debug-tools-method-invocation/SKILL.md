@@ -25,7 +25,8 @@ Startup recovery tools, used only when no active connection and no attachable JV
 ## Hard Boundaries
 
 - If the DebugTools MCP tools are not exposed in the current Codex tool context, stop and report a configuration error. Do not fall back to shell process inspection, local startup, direct HTTP probing, reflection runners, or Java/Maven commands for discovery or invocation.
-- Direct DebugTools HTTP is allowed only after MCP has returned a selected connection with `host` and `httpPort`, and only for documented companion endpoints: ClassLoader checks and JSON/Debug result views.
+- Direct DebugTools HTTP is allowed only after MCP has returned a selected connection with `host` and `httpPort`, and only for documented companion endpoints: Spring readiness, ClassLoader checks, and JSON/Debug result views.
+- `GET /spring/ready` is a DebugTools companion HTTP endpoint, not an MCP tool. Use only the selected MCP connection `host` and `httpPort`; do not guess `127.0.0.1:22222`, scan ports, or use `ps`/`jps` as a substitute for MCP connection selection.
 - Do not invent MCP tools or parameters such as `list_debug_tools_classloaders`, `resultFormats`, `debugDepth`, or result-view MCP fields.
 
 ## Invocation Flow
@@ -36,8 +37,34 @@ Startup recovery tools, used only when no active connection and no attachable JV
 4. If no suitable connection exists, call `list_attachable_jvms`, select a PID, then `attach_local_jvm`. Use bounded `waitForConnectionMillis` when attach is part of an authorized invocation workflow.
 5. If no JVMs are attachable, read `references/workflow.md` for Hotswap startup recovery using `list_debug_tools_run_configurations` and `execute_debug_tools_run_configuration`.
 6. Prepare parameters: omit `argsJson` for no-arg methods, build simple known values directly, and use `generate_method_args_template` for complex args, uncertain names, generated defaults, or overloads.
-7. Call `invoke_java_method` with `className`, `methodName`, plus `projectPath`, `connectionId`, `parameterTypes`, `argsJson`, or `classLoaderIdentity` only when needed.
-8. If invocation fails, recover from the specific error instead of retrying unchanged; see `references/troubleshooting.md`.
+7. Before invoking a Spring-like target after a fresh `attach_local_jvm` or Hotswap startup recovery, run the Readiness Gate below.
+8. Call `invoke_java_method` with `className`, `methodName`, plus `projectPath`, `connectionId`, `parameterTypes`, `argsJson`, or `classLoaderIdentity` only when needed.
+9. If invocation fails, recover from the specific error instead of retrying unchanged; see `references/troubleshooting.md`.
+
+## Readiness Gate
+
+Use this gate only when the selected method appears to depend on Spring runtime state, such as a `Controller`, `Service`, repository, component, or bean method. Do not force it for obvious non-Spring static utility methods.
+
+Run the gate when either condition is true:
+
+- This turn just attached with `attach_local_jvm` and MCP returned a connection with `host` and `httpPort`.
+- This turn just started through DebugTools Hotswap, then rediscovered or attached a connection before invocation.
+
+Call:
+
+```http
+GET http://<host>:<httpPort>/spring/ready
+```
+
+Polling rules:
+
+- Use the selected MCP connection `host` and `httpPort` only.
+- Poll every `1s`.
+- Use timeout `30s` after fresh attach.
+- Use timeout `60s` after Hotswap startup.
+- Continue to `invoke_java_method` when `ready=true` or HTTP status is `200`.
+- If `state=STARTING` and `retryable=true`, keep polling until ready or timeout.
+- If `retryable=false`, stop polling and report the `state` and reason. Continue only if the user explicitly asks to force invocation.
 
 ## ClassLoader Selection
 

@@ -10,6 +10,7 @@ installer, and test changes can all change future agent behavior.
 - Method invocation guidance lives in `skills/debug-tools-method-invocation/SKILL.md`.
 - Method invocation references live in `skills/debug-tools-method-invocation/references/`.
 - Hotswap run configuration guidance lives in `skills/debug-tools-hotswap/SKILL.md`.
+- Spring configuration guidance lives in `skills/debug-tools-spring-config/SKILL.md`.
 - Pressure scenarios live in `tests/pressure/`.
 - Installers, validation, release, and adapter sync scripts live in `scripts/`.
 - Agent entry files include `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and packaged
@@ -40,12 +41,17 @@ methods through DebugTools.
    as proof that DebugTools is connected.
 6. If the user chooses IDEA native Run/Debug, ask them to start the app in IDEA,
    then repeat connection discovery after they report startup is complete.
-7. For parameterized methods, overloaded methods, unclear parameter names, or
+7. After a fresh attach or Hotswap startup, call `GET /spring/ready` before
+   invoking Spring-like `Controller`, `Service`, repository, component, or bean
+   methods. Use only the selected MCP connection `host` and `httpPort`; poll
+   `STARTING` with `retryable=true`, stop on `retryable=false`, and do not guess
+   localhost/default ports.
+8. For parameterized methods, overloaded methods, unclear parameter names, or
    complex argument types, call `generate_method_args_template`.
-8. Fill the returned `argsJson` by editing `content` values while preserving
+9. Fill the returned `argsJson` by editing `content` values while preserving
    generated keys, order, and RunContentDTO shape.
-9. Call `invoke_java_method`.
-10. If invocation fails, recover from the specific error instead of retrying the
+10. Call `invoke_java_method`.
+11. If invocation fails, recover from the specific error instead of retrying the
    same call unchanged.
 
 Use `debug-tools-method-invocation` for this workflow.
@@ -75,6 +81,25 @@ Use `debug-tools-hotswap` for this workflow. Switch back to
 `debug-tools-method-invocation` only when the user asks to inspect connections,
 attach, generate args, or invoke a method.
 
+## Spring Config Workflow
+
+Apply this workflow when the user asks to read Spring configuration, Spring
+Environment properties, or runtime values normally defined in
+`application.yml` or `application.properties`.
+
+1. If the user did not provide config keys, ask which keys to read.
+2. Call `list_debug_tools_connections` before attaching unless the user supplied
+   a fresh PID.
+3. Reuse a suitable active connection when possible.
+4. If no suitable connection exists, call `list_attachable_jvms`, select the
+   target PID, then call `attach_local_jvm`.
+5. Use `host` and `httpPort` from the selected connection for
+   `POST /spring/config` with a JSON string array request body.
+6. If `httpPort` is missing, report that Spring config HTTP is unavailable. Do
+   not probe local ports.
+
+Use `debug-tools-spring-config` for this workflow.
+
 ## MCP Tool Rules
 
 - Prefer DebugTools MCP tools over shell process inspection for invocation work.
@@ -100,6 +125,8 @@ attach, generate args, or invoke a method.
   explicitly asked to launch if needed.
 - Do not always offer IDEA native Run/Debug startup. Include it only when actual
   user context, tool output, or a future MCP capability shows it is available.
+- `/spring/ready` is a direct DebugTools HTTP companion endpoint, not an MCP
+  tool. Use it only after MCP supplies `host` and `httpPort`.
 
 ## ClassLoader Rules
 
@@ -134,6 +161,9 @@ attach, generate args, or invoke a method.
   `docs/release.md`.
 - Do not add a dedicated MCP ClassLoader-listing step; ClassLoader recovery uses
   direct DebugTools HTTP.
+- Do not add a dedicated MCP Spring config step unless the DebugTools MCP plugin
+  exposes one in the future. Spring config reads use direct DebugTools HTTP
+  `POST /spring/config` after MCP connection discovery.
 
 ## Validation
 
@@ -182,7 +212,8 @@ When DebugTools workflow details are needed, read these in order:
 1. `docs/workflow.md`
 2. `docs/tool-contracts.md`
 3. `skills/debug-tools-method-invocation/SKILL.md` or
-   `skills/debug-tools-hotswap/SKILL.md`
+   `skills/debug-tools-hotswap/SKILL.md` or
+   `skills/debug-tools-spring-config/SKILL.md`
 4. Relevant files in `skills/debug-tools-method-invocation/references/`
 
 For release work, read `docs/release.md`. For installation behavior, read

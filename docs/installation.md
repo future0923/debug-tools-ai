@@ -52,6 +52,7 @@ The bundled skills are:
 ```text
 skills/debug-tools-method-invocation/SKILL.md
 skills/debug-tools-hotswap/SKILL.md
+skills/debug-tools-spring-config/SKILL.md
 ```
 
 Local install:
@@ -182,6 +183,7 @@ The uninstaller removes only paths owned by this package:
 ```text
 ~/.codex/skills/debug-tools-method-invocation
 ~/.codex/skills/debug-tools-hotswap
+~/.codex/skills/debug-tools-spring-config
 ~/.codex/plugins/debug-tools-ai
 ~/.claude/debug-tools-ai
 ~/.claude/plugins/debug-tools-ai

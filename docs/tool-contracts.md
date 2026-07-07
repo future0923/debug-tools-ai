@@ -28,7 +28,9 @@ Returns current IDE-side DebugTools connections with fields such as:
 
 Use this before attaching when the user may already have a connection.
 
-`host` and `httpPort` can be used for direct DebugTools agent HTTP when advanced ClassLoader selection is needed. These endpoints are not MCP tools:
+`host` and `httpPort` can be used for documented direct DebugTools agent HTTP companion endpoints. These endpoints are not MCP tools.
+
+ClassLoader endpoints:
 
 ```http
 GET http://<host>:<httpPort>/allClassLoader
@@ -45,6 +47,57 @@ Content-Type: application/json
 ```
 
 `classLoaderIdentity` may be omitted or blank; the server then checks its default ClassLoader. Use the selected `identity` as `invoke_java_method.classLoaderIdentity`.
+
+Spring config endpoint:
+
+```http
+POST http://<host>:<httpPort>/spring/config
+Content-Type: application/json
+
+["server.port", "spring.profiles.active"]
+```
+
+The body is a JSON string array of Spring config keys. The response is a JSON object keyed by the requested keys. Values are resolved from Spring runtime Environment; a `null` value means the key was not resolved.
+
+Spring readiness endpoint:
+
+```http
+GET http://<host>:<httpPort>/spring/ready
+```
+
+Use this companion HTTP endpoint before invoking Spring-like methods after fresh attach or DebugTools Hotswap startup. Use only `host` and `httpPort` from the selected MCP connection. Do not guess `127.0.0.1:22222`, scan ports, or use process inspection as a replacement for MCP connection selection.
+
+Ready response:
+
+```json
+{"ready":true,"state":"UP","retryable":false}
+```
+
+HTTP `200` or `ready=true` means the agent can continue to `invoke_java_method`.
+
+Starting response:
+
+```json
+{"ready":false,"state":"STARTING","retryable":true}
+```
+
+The agent should poll again until the workflow timeout.
+
+No Spring context response:
+
+```json
+{"ready":false,"state":"NO_SPRING_CONTEXT","retryable":false}
+```
+
+The agent should stop polling and report that Spring is unavailable or the target is not a Spring application.
+
+Check error response:
+
+```json
+{"ready":false,"state":"CHECK_ERROR","retryable":false}
+```
+
+The agent should stop polling and report that readiness checking is unavailable. It should continue only if the user explicitly asks to force invocation.
 
 ## `list_attachable_jvms`
 

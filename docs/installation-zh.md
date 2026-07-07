@@ -52,6 +52,7 @@ Codex 入口：
 ```text
 skills/debug-tools-method-invocation/SKILL.md
 skills/debug-tools-hotswap/SKILL.md
+skills/debug-tools-spring-config/SKILL.md
 ```
 
 本地安装：
@@ -182,6 +183,7 @@ debug-tools-ai uninstall --all
 ```text
 ~/.codex/skills/debug-tools-method-invocation
 ~/.codex/skills/debug-tools-hotswap
+~/.codex/skills/debug-tools-spring-config
 ~/.codex/plugins/debug-tools-ai
 ~/.claude/debug-tools-ai
 ~/.claude/plugins/debug-tools-ai

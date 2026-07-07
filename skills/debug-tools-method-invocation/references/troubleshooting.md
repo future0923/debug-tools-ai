@@ -75,14 +75,21 @@ Symptoms:
 - wrong class version
 - bean not found
 - framework context mismatch
+- ApplicationContext not ready
+- Spring `Controller`, `Service`, repository, component, or bean invocation fails immediately after attach or Hotswap startup
 
 Recover:
 
+- If this turn just attached or started through Hotswap and the target is Spring-like, check readiness first with `GET /spring/ready` using the selected connection `host` and `httpPort`.
+- If `/spring/ready` returns `state=STARTING` and `retryable=true`, poll every `1s` until ready or the workflow timeout. Do not switch ClassLoaders or retry `invoke_java_method` while the app is still starting.
+- If `/spring/ready` returns `retryable=false`, stop and report the state. For `NO_SPRING_CONTEXT`, explain that Spring is unavailable or the target is not a Spring application. For `CHECK_ERROR`, explain that readiness checking is unavailable. Continue only if the user explicitly asks to force invocation.
 - Inspect connection data from `list_debug_tools_connections`.
 - If `defaultClassLoader` is already present and suitable, pass its `identity` as `invoke_java_method.classLoaderIdentity`.
 - If `host` and `httpPort` are present, use direct DebugTools HTTP: `GET /allClassLoader`, then `POST /classLoader/hasClass` for the target class when needed.
 - Use `classLoaderIdentity` only when the target ClassLoader is known.
 - If unsure, ask the user to select the intended classloader rather than guessing.
+
+Do not use `/spring/config` or a Java method invocation as a readiness probe. `/spring/ready` is the readiness check.
 
 ## Template Generation Fails
 

@@ -10,6 +10,7 @@ DebugTools AI pressure scenarios
 Run each scenario with a fresh AI agent and the relevant skill:
   skills/debug-tools-method-invocation/SKILL.md
   skills/debug-tools-hotswap/SKILL.md
+  skills/debug-tools-spring-config/SKILL.md
 
 Ask the agent:
   Read the relevant skill, run this scenario mentally, and return PASS or FAIL against the pass criteria with evidence.

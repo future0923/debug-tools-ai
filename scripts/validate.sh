@@ -55,6 +55,8 @@ required_files=(
   "tests/pressure/10-missing-mcp-tools-fails-fast.md"
   "tests/pressure/11-json-result-view-http.md"
   "tests/pressure/12-debug-result-view-http.md"
+  "tests/pressure/13-spring-config-http.md"
+  "tests/pressure/14-method-invocation-waits-for-spring-ready.md"
   "skills/debug-tools-method-invocation/SKILL.md"
   "skills/debug-tools-method-invocation/agents/openai.yaml"
   "skills/debug-tools-method-invocation/references/args-json.md"
@@ -64,6 +66,12 @@ required_files=(
   "skills/debug-tools-method-invocation/references/troubleshooting.md"
   "skills/debug-tools-hotswap/SKILL.md"
   "skills/debug-tools-hotswap/agents/openai.yaml"
+  "skills/debug-tools-hotswap/assets/pluginIcon.png"
+  "skills/debug-tools-spring-config/SKILL.md"
+  "skills/debug-tools-spring-config/agents/openai.yaml"
+  "skills/debug-tools-spring-config/assets/pluginIcon.png"
+  "skills/debug-tools-spring-config/references/http-spring-config.md"
+  "skills/debug-tools-method-invocation/assets/pluginIcon.png"
   ".codex-plugin/plugin.json"
   ".claude-plugin/plugin.json"
   ".cursor-plugin/plugin.json"
@@ -129,7 +137,7 @@ bash "$ROOT/scripts/check-release-readiness.sh"
 bash "$ROOT/scripts/smoke-install.sh"
 bash "$ROOT/scripts/doctor.sh"
 
-for skill_file in "$ROOT/skills/debug-tools-method-invocation/SKILL.md" "$ROOT/skills/debug-tools-hotswap/SKILL.md"; do
+for skill_file in "$ROOT/skills/debug-tools-method-invocation/SKILL.md" "$ROOT/skills/debug-tools-hotswap/SKILL.md" "$ROOT/skills/debug-tools-spring-config/SKILL.md"; do
   if ! grep -q "^---" "$skill_file"; then
     echo "Skill is missing YAML frontmatter: ${skill_file#$ROOT/}" >&2
     exit 1
@@ -165,6 +173,43 @@ for term in "${http_terms[@]}"; do
   fi
 done
 
+spring_config_terms=(
+  "/spring/config"
+  "Spring runtime Environment"
+  "JSON string array"
+)
+
+for term in "${spring_config_terms[@]}"; do
+  if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/docs/workflow.md" "$ROOT/skills/debug-tools-spring-config" "$ROOT/tests/pressure" >/dev/null; then
+    echo "Missing Spring config HTTP reference: $term" >&2
+    exit 1
+  fi
+done
+
+spring_ready_terms=(
+  "/spring/ready"
+  "retryable=true"
+  "retryable=false"
+)
+
+for term in "${spring_ready_terms[@]}"; do
+  if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/docs/workflow.md" "$ROOT/skills/debug-tools-method-invocation" "$ROOT/tests/pressure" >/dev/null; then
+    echo "Missing Spring readiness reference: $term" >&2
+    exit 1
+  fi
+done
+
+for path in \
+  "$ROOT/docs/tool-contracts.md" \
+  "$ROOT/docs/workflow.md" \
+  "$ROOT/skills/debug-tools-method-invocation" \
+  "$ROOT/tests/pressure"; do
+  if ! grep -R "/spring/ready" "$path" >/dev/null; then
+    echo "Missing /spring/ready in ${path#$ROOT/}" >&2
+    exit 1
+  fi
+done
+
 pressure_terms=(
   "generate_method_args_template"
   "connectionId"
@@ -185,6 +230,11 @@ pressure_terms=(
   "/result/detail"
   "printResultType=Json"
   "printResultType=Debug"
+  "/spring/config"
+  "/spring/ready"
+  "retryable=true"
+  "retryable=false"
+  "get_spring_config"
 )
 
 for term in "${pressure_terms[@]}"; do

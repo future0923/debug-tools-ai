@@ -40,7 +40,7 @@ export const DebugToolsAiPlugin = async () => {
 
     const workflow = fs.readFileSync(workflowPath, 'utf8');
     bootstrapCache = `<DEBUG_TOOLS_AI>
-Use DebugTools AI when the user asks to inspect DebugTools connections, attach a JVM, generate method arguments, invoke Java methods, list run configurations, or start a run configuration with DebugTools Hotswap.
+Use DebugTools AI when the user asks to inspect DebugTools connections, attach a JVM, generate method arguments, invoke Java methods, list run configurations, start a run configuration with DebugTools Hotswap, or read Spring runtime config keys.
 
 ${workflow}
 </DEBUG_TOOLS_AI>`;

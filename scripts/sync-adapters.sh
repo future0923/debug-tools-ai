@@ -52,7 +52,7 @@ if ! grep -q "docs/workflow.md" "$ROOT/AGENTS.md"; then
   exit 1
 fi
 
-for skill in "debug-tools-method-invocation" "debug-tools-hotswap"; do
+for skill in "debug-tools-method-invocation" "debug-tools-hotswap" "debug-tools-spring-config"; do
   if ! grep -R "$skill" "$ROOT/README.md" "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" "$ROOT/GEMINI.md" "$ROOT/docs" "$ROOT/skills" >/dev/null; then
     echo "Missing skill reference: $skill" >&2
     exit 1

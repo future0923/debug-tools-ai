@@ -1,6 +1,6 @@
 {
   "name": "debug-tools-ai",
-  "description": "AI agent support package for DebugTools MCP method invocation and Hotswap workflows",
+  "description": "AI agent support package for DebugTools MCP method invocation, Hotswap, and Spring config workflows",
   "version": "0.1.0",
   "contextFileName": "GEMINI.md"
 }

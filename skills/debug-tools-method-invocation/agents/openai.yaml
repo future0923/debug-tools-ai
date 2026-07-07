@@ -1,6 +1,8 @@
 interface:
   display_name: "DebugTools Method Invocation"
   short_description: "Invoke Java methods through DebugTools"
+  icon_small: "./assets/pluginIcon.png"
+  icon_large: "./assets/pluginIcon.png"
   brand_color: "#2563EB"
   default_prompt: "Use $debug-tools-method-invocation to attach DebugTools and invoke this Java method."
 

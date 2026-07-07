@@ -7,7 +7,7 @@
 [![npm](https://img.shields.io/npm/v/debug-tools-ai)](https://www.npmjs.com/package/debug-tools-ai)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-DebugTools AI 用来教 Codex、Claude Code、OpenCode、Gemini、Cursor、Kimi、Pi 和其他 Agent 使用 DebugTools IntelliJ MCP 工具：附着 JVM、生成方法参数模板、调用 Java 方法，以及用 DebugTools Hotswap 启动 IntelliJ 运行配置。
+DebugTools AI 用来教 Codex、Claude Code、OpenCode、Gemini、Cursor、Kimi、Pi 和其他 Agent 使用 DebugTools IntelliJ MCP 工具：附着 JVM、生成方法参数模板、调用 Java 方法、用 DebugTools Hotswap 启动 IntelliJ 运行配置，以及读取 Spring 运行时配置 key。
 
 ## 30 秒开始
 
@@ -42,6 +42,7 @@ invoke_java_method
 ```text
 list_attachable_jvms
 attach_local_jvm
+GET /spring/ready              # fresh attach 后调用 Spring Controller/Service/Bean 前
 invoke_java_method
 ```
 
@@ -64,6 +65,8 @@ execute_debug_tools_run_configuration
 - 列出 IntelliJ Run Configuration
 - 使用 DebugTools Hotswap executor 启动运行配置
 - 必要时通过 DebugTools HTTP 恢复 ClassLoader 问题
+- fresh attach 或 Hotswap 启动后，在调用 Spring 方法前等待 Spring ready
+- 通过 DebugTools HTTP 读取 Spring runtime Environment 配置 key
 
 ## 前置条件
 
@@ -193,6 +196,13 @@ AI: execute_debug_tools_run_configuration configurationName=DemoApplication
 
 如果运行配置名不明确，Agent 应先调用 `list_debug_tools_run_configurations`。执行成功只表示启动请求已提交，不代表 DebugTools 已经连接。
 
+Spring 配置读取：
+
+```text
+User: Read server.port from the attached Spring app.
+AI: list_debug_tools_connections -> POST /spring/config with ["server.port"]
+```
+
 更多示例：[docs/examples-zh.md](docs/examples-zh.md)。安装和使用 transcript：[docs/transcripts-zh.md](docs/transcripts-zh.md)。Spring Boot demo：[examples/spring-boot-demo.md](examples/spring-boot-demo.md)。
 
 ## 工作流参考
@@ -203,6 +213,7 @@ AI: execute_debug_tools_run_configuration configurationName=DemoApplication
 list_debug_tools_connections
 list_attachable_jvms
 attach_local_jvm
+GET /spring/ready              # 仅 fresh attach 或 Hotswap 启动后调用 Spring-like 目标前
 generate_method_args_template
 invoke_java_method
 ```
@@ -213,6 +224,7 @@ invoke_java_method
 - 工具契约：[docs/tool-contracts.md](docs/tool-contracts.md)
 - 方法调用 Skill：[skills/debug-tools-method-invocation/SKILL.md](skills/debug-tools-method-invocation/SKILL.md)
 - Hotswap Skill：[skills/debug-tools-hotswap/SKILL.md](skills/debug-tools-hotswap/SKILL.md)
+- Spring 配置 Skill：[skills/debug-tools-spring-config/SKILL.md](skills/debug-tools-spring-config/SKILL.md)
 
 ## 校验
 

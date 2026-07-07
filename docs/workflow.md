@@ -18,7 +18,7 @@ This document is the shared workflow source for AI agents using DebugTools throu
 - `execute_debug_tools_run_configuration` - start a run configuration with the DebugTools Hotswap executor.
 - `compile_and_reload_modified_files` - trigger IDEA Java Debugger Compile and Reload Modified Files for the HotSwap changed-file/class set.
 
-Use `debug-tools-method-invocation` for connection, attach, argument template, ClassLoader recovery, and Java method invocation tasks. Use `debug-tools-hotswap` for run configuration listing, Hotswap startup, and compile/reload tasks.
+Use `debug-tools-method-invocation` for connection, attach, argument template, ClassLoader recovery, and Java method invocation tasks. Use `debug-tools-hotswap` for run configuration listing, Hotswap startup, and compile/reload tasks. Use `debug-tools-spring-config` when the user asks to read Spring runtime Environment configuration keys from an attached application.
 
 ## Standard Method Invocation Flow
 
@@ -32,8 +32,30 @@ Use `debug-tools-method-invocation` for connection, attach, argument template, C
 8. If the user chooses IDEA native Run/Debug, ask them to start the app in IDEA, then repeat connection discovery after they report startup is complete.
 9. For methods with parameters, call `generate_method_args_template` before manually writing `argsJson`, unless the exact `argsJson` is already known.
 10. Fill only the `content` values in the template unless the user explicitly wants to change parameter protocol types.
-11. Call `invoke_java_method` with `connectionId` when there are multiple active connections.
-12. If startup was authorized and manual attach is required, call `attach_local_jvm` with `waitForConnectionMillis` so the result can provide `connectionId` directly.
+11. After a fresh attach or Hotswap startup, run the Spring readiness gate before invoking Spring-like `Controller`, `Service`, repository, component, or bean methods.
+12. Call `invoke_java_method` with `connectionId` when there are multiple active connections.
+13. If startup was authorized and manual attach is required, call `attach_local_jvm` with `waitForConnectionMillis` so the result can provide `connectionId` directly.
+
+## Spring Readiness Gate
+
+For method invocation, attach success only proves the DebugTools agent is present. It does not prove Spring has finished starting. When the selected target looks like a Spring method and the current turn just attached or just recovered from Hotswap startup, call:
+
+```http
+GET http://<host>:<httpPort>/spring/ready
+```
+
+Use only `host` and `httpPort` from the selected MCP connection. Do not guess localhost/default ports, scan ports, use `/spring/config`, or use Java method calls as readiness probes.
+
+Polling rules:
+
+- Fresh attach timeout: `30s`.
+- Hotswap startup timeout: `60s`.
+- Interval: `1s`.
+- `ready=true` or HTTP `200`: proceed to `invoke_java_method`.
+- `state=STARTING` and `retryable=true`: keep polling until ready or timeout.
+- `retryable=false`: stop polling, report the state, and continue only if the user explicitly asks to force invocation.
+
+Do not force this gate for obvious non-Spring static utility methods.
 
 ## Result View Rules
 
@@ -42,6 +64,14 @@ Use `debug-tools-method-invocation` for connection, attach, argument template, C
 - If the user asks for DebugTools Debug-style object inspection, use direct DebugTools HTTP `POST /result/type` with `printResultType=Debug`. Fetch children with `POST /result/detail` only when field expansion is needed, using the selected node's `filedOffset` as request `offsetPath`.
 - Do not invent MCP result-view parameters or tools. Result JSON/Debug viewing follows the same direct HTTP pattern as ClassLoader discovery.
 - If `httpPort` or `offsetPath` is missing, report that JSON/Debug result view HTTP is unavailable.
+
+## Spring Config Rules
+
+- If the user asks to read Spring configuration, use `debug-tools-spring-config`.
+- Spring configuration reads are key-based direct DebugTools HTTP: `POST /spring/config` with a JSON string array of requested keys, using `host` and `httpPort` from `list_debug_tools_connections`.
+- If the user does not provide keys, ask which Spring config keys to read. Do not try to dump all Spring configuration.
+- Report values as Spring runtime Environment resolved values, not as direct `application.yml` or `application.properties` reads.
+- If `httpPort` is missing, report that Spring config HTTP is unavailable.
 
 ## Compile And Reload Modified Files
 
@@ -54,7 +84,7 @@ The "modified files" are IDEA Java Debugger HotSwap changed files/classes tracke
 - Prefer an existing active connection over re-attaching.
 - Use `connectionId` when more than one DebugTools connection exists.
 - Use `classLoaderIdentity` only when the user selected one, the current connection has a known default classloader, or the method requires a specific classloader.
-- ClassLoader discovery is not an MCP tool. When needed, use direct DebugTools HTTP from connection `host` and `httpPort`.
+- ClassLoader discovery, Spring config reads, and Spring readiness checks are not MCP tools. When needed, use direct DebugTools HTTP from connection `host` and `httpPort`.
 - Treat `list_attachable_jvms` as a discovery tool only; it does not prove a DebugTools connection exists.
 - Treat Hotswap startup as a recovery path for no active connection plus no attachable JVMs, not as the normal method invocation path.
 - Do not always offer IDEA native Run/Debug startup. Include it only when actual user context, tool output, or a future MCP capability shows it is available.
@@ -105,5 +135,7 @@ If `generate_method_args_template` reports that `parameterTypes` are required, r
 - Method not found: verify `className`, `methodName`, and `parameterTypes`.
 - Parameters arrive as `null`: verify `argsJson` is the top-level RunContentDTO map and is not wrapped in `targetMethodContent`.
 - Wrong class version or missing bean: inspect connection `defaultClassLoader`; if needed, use `GET /allClassLoader` and `POST /classLoader/hasClass` through DebugTools HTTP, then pass the selected identity as `classLoaderIdentity`.
+- Spring method fails immediately after attach or Hotswap startup: check `GET /spring/ready` first. If it returns `STARTING` with `retryable=true`, wait instead of switching ClassLoaders or retrying unchanged.
+- Spring config key returns `null`: report that Spring runtime Environment did not resolve that key instead of treating the HTTP call as failed.
 - Run configuration not found: call `list_debug_tools_run_configurations` or use returned `availableConfigurationNames` to ask the user for the exact name.
 - Unsupported Hotswap runner: report that the run configuration does not support the DebugTools Hotswap executor instead of retrying unchanged.
