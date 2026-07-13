@@ -4,88 +4,106 @@
 
 [![Validate](https://github.com/future0923/debug-tools-ai/actions/workflows/validate.yml/badge.svg)](https://github.com/future0923/debug-tools-ai/actions/workflows/validate.yml)
 [![Release](https://img.shields.io/github/v/release/future0923/debug-tools-ai?include_prereleases)](https://github.com/future0923/debug-tools-ai/releases)
-[![npm](https://img.shields.io/npm/v/debug-tools-ai)](https://www.npmjs.com/package/debug-tools-ai)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-DebugTools AI 用来教 Codex、Claude Code、OpenCode、Gemini、Cursor、Kimi、Pi 和其他 Agent 使用 DebugTools IntelliJ MCP 工具：附着 JVM、生成方法参数模板、调用 Java 方法、用 DebugTools Hotswap 启动 IntelliJ 运行配置，以及读取 Spring 运行时配置 key。
+DebugTools AI 为 Codex、Claude Code、Gemini、OpenCode、Cursor、Kimi、Pi 等 AI Agent 提供 DebugTools 使用说明和 Skills。安装后，Agent 可以根据你的自然语言需求操作 DebugTools IntelliJ MCP，无需记住 MCP 工具名，也不必每次特意说“DebugTools”。
+
+项目开源地址：[future0923/debug-tools-ai](https://github.com/future0923/debug-tools-ai)。
 
 ## 30 秒开始
 
-为 Codex 安装：
+先确认 IntelliJ IDEA 已安装 DebugTools 插件，并且插件提供的 MCP 已在当前 AI 客户端中启用。然后选择你正在使用的 Agent，例如 Codex：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/future0923/debug-tools-ai/main/install.sh | bash -s -- --codex
 ```
 
-验证安装：
+把末尾参数替换成对应 Agent 即可：
 
-```bash
-debug-tools-ai doctor
-```
+| Agent | 参数 |
+| --- | --- |
+| Codex | `--codex` |
+| Claude Code | `--claude` |
+| Gemini | `--gemini` |
+| OpenCode | `--opencode` |
+| Cursor | `--cursor` |
+| Kimi | `--kimi` |
+| Pi | `--pi` |
+| 全部安装 | `--all` |
 
-然后对你的 Agent 说：
-
-```text
-Use DebugTools to call com.demo.UserController.getUser.
-```
-
-期望的 Agent 调用路径：
-
-```text
-list_debug_tools_connections
-generate_method_args_template   # 只有方法需要参数或参数不确定时才需要
-invoke_java_method
-```
-
-如果当前没有可用的 DebugTools 连接，Agent 应该走：
+看到下面两类输出，表示文件已经写入对应 Agent 的本地目录：
 
 ```text
-list_attachable_jvms
-attach_local_jvm
-GET /spring/ready              # fresh attach 后调用 Spring Controller/Service/Bean 前
-invoke_java_method
+Installed Codex files
+debug-tools-ai installation finished
 ```
 
-Hotswap 启动路径：
+安装后新建一个 Agent 会话；如果客户端没有立即发现 Skills，重启一次客户端。
+
+现在可以直接描述任务：
 
 ```text
-list_debug_tools_run_configurations   # 运行配置名未知或不明确时
-execute_debug_tools_run_configuration
+调用 com.demo.UserController.getUser 方法。
 ```
 
-## 它能做什么
+```text
+用 Hotswap 启动 DemoApplication，然后调用刚修改的方法。
+```
 
-安装这个包后，Agent 可以：
+```text
+读取当前 Spring 应用的 server.port 和 spring.profiles.active。
+```
 
-- 查看当前 DebugTools 连接
-- 列出可附着的 JVM 进程
-- 将 DebugTools agent 附着到本地 JVM
-- 根据 Java 方法签名生成 DebugTools `argsJson` 参数模板
-- 通过 DebugTools 调用 Java 方法
-- 列出 IntelliJ Run Configuration
-- 使用 DebugTools Hotswap executor 启动运行配置
-- 必要时通过 DebugTools HTTP 恢复 ClassLoader 问题
-- fresh attach 或 Hotswap 启动后，在调用 Spring 方法前等待 Spring ready
-- 通过 DebugTools HTTP 读取 Spring runtime Environment 配置 key
+当上下文中存在多套类似工具、需要明确限定时，再补充“使用 DebugTools”即可。
 
 ## 前置条件
 
 - IntelliJ IDEA 已安装 DebugTools 插件。
-- IntelliJ 插件提供的 DebugTools MCP tools 可用。
-- 目标 JVM 已连接或可以被本地附着。
-- 你的 AI 客户端可以使用 DebugTools MCP tools。
+- DebugTools 插件提供的 MCP tools 已添加到当前 AI 客户端并处于可用状态。
+- 目标 JVM 已连接，或允许 DebugTools 在本机附着。
+- AI 客户端支持 MCP 和本项目对应的 Skill/插件安装方式。
 
-这个包不会安装 IntelliJ IDEA、DebugTools 插件、DebugTools agent 或 MCP Server。
+DebugTools AI 只安装 Agent 指令、Skills 和插件元数据，不会安装 IntelliJ IDEA、DebugTools 插件、DebugTools agent 或 MCP Server。
 
-## 安装
+## 三个 Skill
 
-一行安装：
+### 方法调用
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/future0923/debug-tools-ai/main/install.sh | bash -s -- --codex
-```
+`debug-tools-method-invocation` 用于查找 DebugTools 连接、附着本地 JVM、生成方法参数并调用 Java 方法。
 
-克隆后安装：
+适合这类需求：
+
+- “调用 `UserService.findById`，参数是 1001。”
+- “附着到正在运行的 demo 服务，再执行这个 Controller 方法。”
+- “这个方法有重载，帮我调用接收 `Long` 的版本。”
+
+特殊注意：存在多个 JVM、连接、重载方法或 ClassLoader 时，Agent 会结合上下文选择；无法可靠判断时会先让你确认。复杂参数会先按方法签名生成模板，避免直接猜测参数结构。
+
+### Hotswap
+
+`debug-tools-hotswap` 用于查找 IntelliJ Run Configuration、通过 DebugTools Hotswap 启动应用，以及编译并重新加载调试会话中的已修改类。
+
+适合这类需求：
+
+- “用 Hotswap 启动 `DemoApplication`。”
+- “把刚修改的 Java 类编译并热更新到当前调试进程。”
+
+特殊注意：启动请求成功不等于 DebugTools 已经连接完成。后续还要调用方法时，Agent 会重新确认连接；运行配置不明确时会先列出候选项。
+
+### Spring 配置
+
+`debug-tools-spring-config` 用于读取目标 JVM 中 Spring `Environment` 的运行时配置值。
+
+适合这类需求：
+
+- “读取 `server.port`。”
+- “看看当前环境实际生效的 Redis 地址和 active profile。”
+
+特殊注意：这里读取的是 Spring 运行时解析后的值，不是直接读取 `application.yml` 或 `application.properties`。因此结果会包含 profile、环境变量、启动参数等配置源覆盖后的最终值。
+
+## 安装、更新与卸载
+
+从源码安装：
 
 ```bash
 git clone https://github.com/future0923/debug-tools-ai.git
@@ -93,169 +111,76 @@ cd debug-tools-ai
 bash install.sh --codex
 ```
 
-安装所有本地集成：
+需要更新时，重新执行原来的安装命令即可，新版本文件会覆盖已有安装文件。
+
+从源码目录卸载一个 Agent 集成：
 
 ```bash
-bash install.sh --all
+bash scripts/uninstall.sh --codex
 ```
 
-npm 发布后：
+卸载全部集成：
 
 ```bash
-npm install -g debug-tools-ai
-debug-tools-ai upgrade --all
+bash scripts/uninstall.sh --all
 ```
 
-卸载一个集成：
+卸载脚本只删除 DebugTools AI 自己安装的文件，不会删除 IntelliJ IDEA、DebugTools 插件、MCP Server 或 Agent 的父级配置目录。
 
-```bash
-debug-tools-ai uninstall --codex
-```
-
-详细安装说明见：[docs/installation-zh.md](docs/installation-zh.md)。
-
-## 支持的 Agent
-
-| Agent | 本地安装 |
-| --- | --- |
-| Codex | `bash install.sh --codex` |
-| Claude Code | `bash install.sh --claude` |
-| Gemini | `bash install.sh --gemini` |
-| OpenCode | `bash install.sh --opencode` |
-| Cursor | `bash install.sh --cursor` |
-| Kimi | `bash install.sh --kimi` |
-| Pi | `bash install.sh --pi` |
-| 通用 Agent | 使用 `AGENTS.md` |
-
-不同平台的 marketplace 安装可能需要发布后经过对应平台审核。
-
-## CLI
-
-| 命令 | 作用 |
-| --- | --- |
-| `debug-tools-ai install --codex` | 安装一个本地集成。 |
-| `debug-tools-ai install --all` | 安装所有支持的本地集成。 |
-| `debug-tools-ai upgrade --all` | 用当前包版本重新安装本地集成。 |
-| `debug-tools-ai uninstall --codex` | 卸载一个本地集成。 |
-| `debug-tools-ai uninstall --all` | 卸载所有支持的本地集成。 |
-| `debug-tools-ai doctor` | 检查包文件和本地 adapter 安装路径。 |
-| `debug-tools-ai validate` | 运行完整校验。 |
-| `debug-tools-ai pressure` | 列出 skill 行为压力测试场景。 |
-| `debug-tools-ai pressure-report` | 生成压力测试记录模板。 |
-| `debug-tools-ai prepublish-check` | 发布前运行 release 检查。 |
-
-如果你在源码 checkout 里运行，使用 `bash bin/debug-tools-ai <command>`。
-
-## Doctor
-
-运行：
-
-```bash
-debug-tools-ai doctor
-```
-
-`OK` 表示预期文件存在。`WARN` 表示当前 `HOME` 下没有安装某个可选本地 adapter。`FAIL` 表示必要包文件缺失，或使用了 `--strict-installed` 且安装路径缺失。
-
-严格检查安装路径：
-
-```bash
-debug-tools-ai doctor --strict-installed
-```
+各 Agent 的安装位置和完整说明见 [docs/installation-zh.md](docs/installation-zh.md)，实际命令输出见 [docs/transcripts-zh.md](docs/transcripts-zh.md)。
 
 ## 使用示例
 
 无参方法：
 
 ```text
-User: Use DebugTools to call com.demo.HealthController.ping.
-AI: list_debug_tools_connections -> invoke_java_method
+用户：调用 com.demo.HealthController.ping。
+Agent：查找可用连接并调用该方法。
 ```
 
 有参方法：
 
 ```text
-User: Call com.demo.UserController.createUser with name Codex and age 18.
-AI: list_debug_tools_connections -> generate_method_args_template -> invoke_java_method
+用户：调用 com.demo.UserController.createUser，name 是 test-user，age 是 18。
+Agent：查找连接，生成参数模板，填入参数并调用方法。
 ```
-
-ClassLoader 恢复：
-
-```text
-ClassNotFoundException: com.demo.UserController
-AI: GET /allClassLoader -> POST /classLoader/hasClass -> invoke_java_method with classLoaderIdentity
-```
-
-如果多个 ClassLoader 都能加载目标类，Agent 必须询问用户使用哪个 loader identity，不能自行猜测。
 
 Hotswap 运行配置：
 
 ```text
-User: Start the DemoApplication run configuration with DebugTools Hotswap.
-AI: execute_debug_tools_run_configuration configurationName=DemoApplication
+用户：用 Hotswap 启动 DemoApplication。
+Agent：确认运行配置；名称不明确时先列出候选项，再提交启动请求。
 ```
-
-如果运行配置名不明确，Agent 应先调用 `list_debug_tools_run_configurations`。执行成功只表示启动请求已提交，不代表 DebugTools 已经连接。
 
 Spring 配置读取：
 
 ```text
-User: Read server.port from the attached Spring app.
-AI: list_debug_tools_connections -> POST /spring/config with ["server.port"]
+用户：读取当前 Spring 应用的 server.port。
+Agent：查找目标连接，并读取 Spring Environment 中实际生效的值。
 ```
 
-更多示例：[docs/examples-zh.md](docs/examples-zh.md)。安装和使用 transcript：[docs/transcripts-zh.md](docs/transcripts-zh.md)。Spring Boot demo：[examples/spring-boot-demo.md](examples/spring-boot-demo.md)。
+更多示例见 [docs/examples-zh.md](docs/examples-zh.md)，Spring Boot 示例见 [examples/spring-boot-demo.md](examples/spring-boot-demo.md)。
 
 ## 工作流参考
 
-核心工具顺序：
+项目维护者可以继续查看以下底层说明：
 
-```text
-list_debug_tools_connections
-list_attachable_jvms
-attach_local_jvm
-GET /spring/ready              # 仅 fresh attach 或 Hotswap 启动后调用 Spring-like 目标前
-generate_method_args_template
-invoke_java_method
-```
-
-详细文档：
-
-- 工作流：[docs/workflow.md](docs/workflow.md)
-- 工具契约：[docs/tool-contracts.md](docs/tool-contracts.md)
-- 方法调用 Skill：[skills/debug-tools-method-invocation/SKILL.md](skills/debug-tools-method-invocation/SKILL.md)
-- Hotswap Skill：[skills/debug-tools-hotswap/SKILL.md](skills/debug-tools-hotswap/SKILL.md)
-- Spring 配置 Skill：[skills/debug-tools-spring-config/SKILL.md](skills/debug-tools-spring-config/SKILL.md)
+- [工作流](docs/workflow.md)
+- [工具契约](docs/tool-contracts.md)
+- [方法调用 Skill](skills/debug-tools-method-invocation/SKILL.md)
+- [Hotswap Skill](skills/debug-tools-hotswap/SKILL.md)
+- [Spring 配置 Skill](skills/debug-tools-spring-config/SKILL.md)
+- [压力测试场景](tests/pressure)
 
 ## 校验
 
-运行：
+修改 Skills、安装器或适配文件后运行：
 
 ```bash
 bash scripts/validate.sh
 ```
 
-专项检查：
-
-```bash
-bash bin/debug-tools-ai validate
-bash scripts/check-versions.sh
-bash scripts/check-manifest-paths.sh
-bash scripts/smoke-install.sh
-bash scripts/check-pressure-scenarios.sh
-bash scripts/check-release-readiness.sh
-```
-
-压力测试场景在 [tests/pressure](tests/pressure)。修改 skill 行为时，用 fresh AI agent 跑相关场景。
-
 ## 贡献和发布
 
-- 贡献说明：[CONTRIBUTING.md](CONTRIBUTING.md)
-- 发布流程：[docs/release.md](docs/release.md)
-
-发布前：
-
-```bash
-bash bin/debug-tools-ai prepublish-check
-```
-
-发布需要同步版本号、更新 `CHANGELOG.md`、创建 `git tag`、发布 GitHub Release，并按目标平台完成 marketplace 提交流程。Release workflow 使用 `softprops/action-gh-release`。
+- [贡献说明](CONTRIBUTING.md)
+- [发布流程](docs/release.md)
