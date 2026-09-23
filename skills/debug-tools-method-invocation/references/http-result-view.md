@@ -1,6 +1,6 @@
 # DebugTools HTTP Result View Reference
 
-Use this only after `invoke_java_method` returns successfully and the user asks to view the returned value as JSON or Debug. This is not an MCP tool; it is direct DebugTools agent HTTP using `host` and `httpPort` from `list_debug_tools_connections`, plus `offsetPath` from `invoke_java_method`.
+Prefer `invoke_java_method.resultView=JSON` or `resultView=DEBUG` on current plugins. Use this reference only when the plugin is older, the MCP result fetch failed and a retry is useful, or the user requests bounded Debug child expansion. This is direct DebugTools agent HTTP using `host` and `httpPort` from the selected connection, plus `offsetPath` from `invoke_java_method`.
 
 ## Get JSON Or Debug Root
 
@@ -31,7 +31,7 @@ The Debug root and child responses use DebugTools `RunResultDTO` fields such as 
 
 ## Selection Rules
 
-- Do not call these endpoints during normal method invocation.
+- Do not call these endpoints during normal method invocation when `resultView` is available.
 - Query `/result/type` with `printResultType=Json` only when the user asks for JSON output.
 - Query `/result/type` with `printResultType=Debug` only when the user asks for DebugTools-style object inspection.
 - Use `host` and `httpPort` from the selected connection returned by `list_debug_tools_connections`; if `httpPort` is missing, report that direct result view HTTP is unavailable.

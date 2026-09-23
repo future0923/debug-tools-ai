@@ -1,11 +1,11 @@
 ---
 name: debug-tools-hotswap
-description: Use when operating DebugTools IntelliJ MCP Hotswap tools to list or start IntelliJ run configurations with DebugTools Hotswap, or to trigger IDEA Java Debugger Compile and Reload Modified Files when a task needs recent code changes loaded into the debugged JVM; includes list_debug_tools_run_configurations, execute_debug_tools_run_configuration, and compile_and_reload_modified_files.
+description: Use when operating DebugTools IntelliJ MCP Hotswap tools to list or start IntelliJ run configurations, compile and reload modified classes, query HotSwap operations, or run the reload → invoke loop; includes list_debug_tools_run_configurations, execute_debug_tools_run_configuration, compile_and_reload_modified_files, get_hotswap_operation, and run_and_invoke.
 ---
 
 # DebugTools Hotswap
 
-Use DebugTools Hotswap tools to start IntelliJ run configurations through the DebugTools Hotswap executor, and to trigger IDEA Java Debugger Compile and Reload Modified Files when recent code changes need to reach the debugged JVM. This skill is for Hotswap launch and reload workflows, not Java method invocation. If the user later asks to inspect DebugTools connections, attach a JVM, generate method args, or invoke a Java method, use the `debug-tools-method-invocation` skill.
+Use DebugTools Hotswap tools to start IntelliJ run configurations through the DebugTools Hotswap executor, trigger IDEA Java Debugger Compile and Reload Modified Files, query pending operations, and orchestrate a reload → invoke loop. If the user later asks for standalone connection discovery, attach, or argument preparation, use the `debug-tools-method-invocation` skill.
 
 ## Toolset
 
@@ -14,12 +14,14 @@ These tools are exposed under `DebugToolsHotswapToolset`:
 - `list_debug_tools_run_configurations`
 - `execute_debug_tools_run_configuration`
 - `compile_and_reload_modified_files`
+- `get_hotswap_operation`
+- `run_and_invoke`
 
 ## Missing Tool Failure
 
 If this skill is selected but the current Codex tool context does not expose the DebugTools Hotswap MCP tools, stop immediately and report a configuration error. Do not inspect IDE files, run shell process discovery, launch applications directly, or use ordinary Java/Maven/Gradle commands as fallbacks.
 
-Tell the user to check that the IDEA MCP server is available and that the DebugTools IDEA plugin registers `list_debug_tools_run_configurations`, `execute_debug_tools_run_configuration`, and `compile_and_reload_modified_files`.
+Tell the user to check that the IDEA MCP server is available and that the DebugTools IDEA plugin registers the tools listed above.
 
 ## Decision Rules
 
@@ -34,6 +36,10 @@ Tell the user to check that the IDEA MCP server is available and that the DebugT
 - When the current task needs recent Java code changes loaded into an already-debugged JVM, call `compile_and_reload_modified_files` directly. Do not inspect `git status` to decide its scope, and do not refuse because the worktree has unrelated VCS changes.
 - For `compile_and_reload_modified_files`, "modified files" means IDEA Java Debugger HotSwap changed files/classes tracked since debugger session start or the previous reload; it is not based on VCS/git modified files.
 - If `compile_and_reload_modified_files` returns multiple `availableSessionNames`, ask the user to choose a session or pass the intended `sessionName` when it is already clear.
+- Pass `waitMillis` when the caller needs bounded feedback. If an operation id is returned after timeout, call `get_hotswap_operation` rather than submitting the same reload again.
+- A successful request means IDEA accepted the action. Use `status`, `errorCode`, and `classResults` when present; do not claim every class was reloaded when IDEA only returned a request-level status.
+- When multiple debugger sessions exist, use the explicit `sessionName`; do not infer a session from a fuzzy process name.
+- Use `run_and_invoke` for a complete loop. `allowStart=true` requires an exact `runConfigurationName`, and `allowAttach=true` requires an explicit `pid`; both are opt-in.
 
 ## Hotswap Pattern
 
@@ -59,7 +65,11 @@ Tell the user to check that the IDEA MCP server is available and that the DebugT
 
 ## Compile And Reload Pattern
 
-Call `compile_and_reload_modified_files` whenever the task needs IDEA to compile and HotSwap recent changes into an attached Java debugger session, such as after editing Java code and needing live verification. This mirrors IDEA Java Debugger's Compile and Reload Modified Files action. The changed-file set is IDEA's HotSwap increment since session start or the previous reload, not the git/VCS dirty set. Treat `success=true` as a submitted request; compile and HotSwap progress or failures remain in IDEA's native UI/notifications.
+Call `compile_and_reload_modified_files` whenever the task needs IDEA to compile and HotSwap recent changes into an attached Java debugger session, such as after editing Java code and needing live verification. This mirrors IDEA Java Debugger's Compile and Reload Modified Files action. The changed-file set is IDEA's HotSwap increment since session start or the previous reload, not the git/VCS dirty set. Treat `success=true` as a submitted request; compile and HotSwap progress or failures remain in IDEA's native UI/notifications. Use `get_hotswap_operation` for a returned `operationId`.
+
+## Closed-Loop Pattern
+
+When the user asks to reload code and immediately exercise it, use `run_and_invoke` when available. It can return status, HotSwap, invocation, and optional log/SQL steps in one response. It must not start or attach implicitly: require an exact `runConfigurationName` with `allowStart=true`, or an explicit `pid` with `allowAttach=true`.
 
 ## Result Shape
 
@@ -79,6 +89,15 @@ Call `compile_and_reload_modified_files` whenever the task needs IDEA to compile
 - `compileBeforeReload`
 - `message`
 - `availableSessionNames`
+- `operationId`
+- `status`
+- `changedFiles`
+- `compiledClasses`
+- `reloadedClasses`
+- `skippedClasses`
+- `classResults`
+- `error`
+- `errorCode`
 
 `execute_debug_tools_run_configuration` returns:
 
@@ -92,3 +111,5 @@ Call `compile_and_reload_modified_files` whenever the task needs IDEA to compile
 - `expectedModuleName`
 - `message`
 - `availableConfigurationNames`
+
+`get_hotswap_operation` accepts `operationId` and returns the latest reload status. `run_and_invoke` accepts `className`, `methodName`, `resultView`, `waitMillis`, `allowStart`, `runConfigurationName`, `allowAttach`, `pid`, `verifyLogs`, and `verifySql` in addition to method invocation fields.

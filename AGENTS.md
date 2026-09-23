@@ -24,9 +24,12 @@ Apply this workflow when the user asks to attach a JVM, inspect DebugTools
 connections, generate method parameters, select ClassLoaders, or invoke Java
 methods through DebugTools.
 
-1. Call `list_debug_tools_connections` before attaching unless the user supplied
-   a fresh PID.
-2. Reuse a suitable active connection when possible.
+1. Prefer `get_debug_tools_status` for a complete snapshot; use
+   `list_debug_tools_connections` before attaching unless the user supplied a
+   fresh PID.
+2. Reuse a suitable active connection when possible. Select the sole active
+   connection automatically; with multiple candidates require an explicit
+   `connectionId` or user choice.
 3. If no suitable connection exists, call `list_attachable_jvms`, select the
    target PID, then call `attach_local_jvm`.
 4. If `list_attachable_jvms` returns `count=0` or an empty `jvms` list, call
@@ -50,9 +53,12 @@ methods through DebugTools.
    complex argument types, call `generate_method_args_template`.
 9. Fill the returned `argsJson` by editing `content` values while preserving
    generated keys, order, and RunContentDTO shape.
-10. Call `invoke_java_method`.
-11. If invocation fails, recover from the specific error instead of retrying the
-   same call unchanged.
+10. Call `invoke_java_method`, using `resultView=JSON|DEBUG|NONE` only when
+    requested.
+11. If invocation fails, recover from the specific structured error instead of
+    retrying the same call unchanged.
+12. Use `read_target_application_logs` and `get_last_sql_statements` for bounded
+    post-invocation evidence, or use `run_and_invoke` for the complete loop.
 
 Use `debug-tools-method-invocation` for this workflow.
 
@@ -75,7 +81,10 @@ changes need to be compiled and reloaded into an attached debugger session.
 6. Follow `nextAction`; if `requiresManualAttach=true` or
    `autoAttachEnabled=false`, do not assume DebugTools will attach automatically.
 7. Call `compile_and_reload_modified_files` when the task needs IDEA Java
-   Debugger Compile and Reload Modified Files for an attached debugger session.
+   Debugger Compile and Reload Modified Files for an attached debugger session;
+   retain `operationId` and query it with `get_hotswap_operation` after a timeout.
+8. Use `run_and_invoke` for a complete reload → invoke flow. Starting and
+   attaching are opt-in and require an exact run configuration name or explicit PID.
 
 Use `debug-tools-hotswap` for this workflow. Switch back to
 `debug-tools-method-invocation` only when the user asks to inspect connections,
@@ -127,6 +136,10 @@ Use `debug-tools-spring-config` for this workflow.
   user context, tool output, or a future MCP capability shows it is available.
 - `/spring/ready` is a direct DebugTools HTTP companion endpoint, not an MCP
   tool. Use it only after MCP supplies `host` and `httpPort`.
+- Current plugins expose `resultView` on `invoke_java_method`; prefer it over
+  direct result HTTP and inspect `resultFetchStatus` separately from invocation success.
+- New tools use structured errors with `code`, `availableOptions`, `retryable`,
+  and `nextAction`. Use candidate options instead of parsing error prose.
 
 ## ClassLoader Rules
 

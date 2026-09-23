@@ -2,8 +2,8 @@
 
 These scenarios test whether an AI agent can follow DebugTools AI skills under realistic pressure:
 
-- `debug-tools-method-invocation` for connection, attach, args template, ClassLoader recovery, and Java method invocation.
-- `debug-tools-hotswap` for listing and starting IntelliJ run configurations with DebugTools Hotswap.
+- `debug-tools-method-invocation` for status, connection, attach, args template, ClassLoader recovery, result views, logs, SQL, and Java method invocation.
+- `debug-tools-hotswap` for listing and starting IntelliJ run configurations, reload operation feedback, and the reload → invoke loop.
 
 They are not unit tests for DebugTools itself. They are skill behavior tests: give one scenario to a fresh agent together with the relevant skill, then compare the answer with the pass criteria.
 
@@ -56,5 +56,9 @@ Completed run records live in `tests/pressure/runs/`.
 - Starting Hotswap from method invocation without explicit launch authorization.
 - Offering IDEA native Run/Debug startup based on local assumptions instead of actual context.
 - Omitting IDEA native Run/Debug when the scenario explicitly says that startup path is available.
-- Passing invented result-view options to `invoke_java_method` instead of using direct DebugTools HTTP for JSON and Debug views.
+- Passing invented result-view options to `invoke_java_method`, or ignoring the supported `resultView=JSON|DEBUG|NONE` modes and their fetch status fields.
 - Expanding Debug result fields without using the selected node's `filedOffset` as `/result/detail` request `offsetPath`.
+- Guessing among multiple connections instead of using `CONNECTION_AMBIGUOUS` options.
+- Treating `LOGS_UNAVAILABLE` or `SQL_HISTORY_UNAVAILABLE` as an empty result.
+- Re-submitting a timed-out HotSwap request instead of querying `get_hotswap_operation`.
+- Selecting a saved Method Around script by exact name instead of guessing a project file path.

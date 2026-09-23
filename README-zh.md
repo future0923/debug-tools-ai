@@ -6,7 +6,7 @@
 [![Release](https://img.shields.io/github/v/release/future0923/debug-tools-ai?include_prereleases)](https://github.com/future0923/debug-tools-ai/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-DebugTools AI 为 Codex、Claude Code、Gemini、OpenCode、Cursor、Kimi、Pi 等 AI Agent 提供 DebugTools 使用说明和 Skills。安装后，Agent 可以根据你的自然语言需求操作 DebugTools IntelliJ MCP，无需记住 MCP 工具名，也不必每次特意说“DebugTools”。
+DebugTools AI 为 Codex、Claude Code、Gemini、OpenCode、Cursor、Kimi、Pi 等 AI Agent 提供 DebugTools 使用说明和 Skills。安装后，Agent 可以根据你的自然语言需求查看状态、选择或附着 JVM、热重载并调用 Java 方法、查看 JSON 结果、日志和 SQL，无需记住 MCP 工具名，也不必每次特意说“DebugTools”。
 
 项目开源地址：[future0923/debug-tools-ai](https://github.com/future0923/debug-tools-ai)。
 
@@ -79,6 +79,8 @@ DebugTools AI 只安装 Agent 指令、Skills 和插件元数据，不会安装 
 
 特殊注意：存在多个 JVM、连接、重载方法或 ClassLoader 时，Agent 会结合上下文选择；无法可靠判断时会先让你确认。复杂参数会先按方法签名生成模板，避免直接猜测参数结构。
 
+现在还可以使用状态聚合、HTTP 地址搜索、目标日志和 SQL 查询，以及 `run_and_invoke` 完成“状态 → 热重载 → 调用 → 日志/SQL”闭环。方法调用支持 `resultView=TO_STRING|JSON|DEBUG|NONE`，结果获取失败会单独返回，不会覆盖方法调用本身的成功状态。
+
 ### Hotswap
 
 `debug-tools-hotswap` 用于查找 IntelliJ Run Configuration、通过 DebugTools Hotswap 启动应用，以及编译并重新加载调试会话中的已修改类。
@@ -88,7 +90,7 @@ DebugTools AI 只安装 Agent 指令、Skills 和插件元数据，不会安装 
 - “用 Hotswap 启动 `DemoApplication`。”
 - “把刚修改的 Java 类编译并热更新到当前调试进程。”
 
-特殊注意：启动请求成功不等于 DebugTools 已经连接完成。后续还要调用方法时，Agent 会重新确认连接；运行配置不明确时会先列出候选项。
+特殊注意：启动请求成功不等于 DebugTools 已经连接完成。后续还要调用方法时，Agent 会重新确认连接；运行配置不明确时会先列出候选项。`run_and_invoke` 只有在明确提供运行配置名或 PID 并开启对应 `allowStart`/`allowAttach` 时才会启动或附着。
 
 ### Spring 配置
 
@@ -157,6 +159,13 @@ Spring 配置读取：
 ```text
 用户：读取当前 Spring 应用的 server.port。
 Agent：查找目标连接，并读取 Spring Environment 中实际生效的值。
+```
+
+完整闭环：
+
+```text
+用户：热重载刚修改的代码，调用 UserService.health，并把最近日志和 SQL 一起返回。
+Agent：run_and_invoke（必要时显式传 allowStart/runConfigurationName 或 allowAttach/pid）
 ```
 
 更多示例见 [docs/examples-zh.md](docs/examples-zh.md)，Spring Boot 示例见 [examples/spring-boot-demo.md](examples/spring-boot-demo.md)。

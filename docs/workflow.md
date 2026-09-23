@@ -11,30 +11,37 @@ This document is the shared workflow source for AI agents using DebugTools throu
 - `attach_local_jvm` - attach the DebugTools agent to a local JVM process.
 - `generate_method_args_template` - generate DebugTools `argsJson` for a Java method from project PSI.
 - `invoke_java_method` - invoke a Java method through an active DebugTools connection.
+- `get_debug_tools_status` - aggregate project, connection, attachable JVM, debugger session, and capability status.
+- `read_target_application_logs` - read recent logs from the selected target JVM ring buffer.
+- `get_last_sql_statements` - read recent SQL from the target JVM or the IDEA SQL history fallback.
+- `search_http_url` - query indexed HTTP endpoints as stable JSON metadata.
 
 `DebugToolsHotswapToolset`:
 
 - `list_debug_tools_run_configurations` - list IntelliJ run configurations in the current project.
 - `execute_debug_tools_run_configuration` - start a run configuration with the DebugTools Hotswap executor.
 - `compile_and_reload_modified_files` - trigger IDEA Java Debugger Compile and Reload Modified Files for the HotSwap changed-file/class set.
+- `get_hotswap_operation` - query a HotSwap operation after the initial request timed out or returned an operation id.
+- `run_and_invoke` - orchestrate status, optional explicit start/attach, reload, invocation, and optional logs/SQL verification.
 
 Use `debug-tools-method-invocation` for connection, attach, argument template, ClassLoader recovery, and Java method invocation tasks. Use `debug-tools-hotswap` for run configuration listing, Hotswap startup, and compile/reload tasks. Use `debug-tools-spring-config` when the user asks to read Spring runtime Environment configuration keys from an attached application.
 
 ## Standard Method Invocation Flow
 
-1. If the user asks what is already connected, or before attaching by default, call `list_debug_tools_connections`.
-2. If a suitable active connection exists, reuse it.
-3. If no suitable connection exists, call `list_attachable_jvms`.
-4. If attachable JVMs are returned, ask only when multiple plausible JVMs match the user's target. Otherwise attach the obvious target with `attach_local_jvm`.
-5. If `list_attachable_jvms` returns `count=0` or an empty `jvms` list, call `list_debug_tools_run_configurations` and pass filters such as `moduleName`, `mainClassNameContains`, or `typeDisplayName` when known. Offer only startup paths supported by actual context.
-6. If only DebugTools Hotswap is known to be available, ask whether to start one with DebugTools Hotswap unless the user already authorized launch-if-needed behavior. If IDEA native Run/Debug is also known to be available from user context, tool output, or a future MCP capability, ask the user to choose between Hotswap and native Run/Debug.
-7. After any Hotswap startup request, follow `execute_debug_tools_run_configuration.nextAction`. Use `LIST_DEBUG_TOOLS_CONNECTIONS` to re-check connections, or `LIST_ATTACHABLE_JVMS` to locate the started JVM and attach. Do not treat `execute_debug_tools_run_configuration.success=true` as proof that DebugTools is connected.
-8. If the user chooses IDEA native Run/Debug, ask them to start the app in IDEA, then repeat connection discovery after they report startup is complete.
-9. For methods with parameters, call `generate_method_args_template` before manually writing `argsJson`, unless the exact `argsJson` is already known.
-10. Fill only the `content` values in the template unless the user explicitly wants to change parameter protocol types.
-11. After a fresh attach or Hotswap startup, run the Spring readiness gate before invoking Spring-like `Controller`, `Service`, repository, component, or bean methods.
-12. Call `invoke_java_method` with `connectionId` when there are multiple active connections.
-13. If startup was authorized and manual attach is required, call `attach_local_jvm` with `waitForConnectionMillis` so the result can provide `connectionId` directly.
+1. Prefer `get_debug_tools_status` when the user asks for a complete diagnostic snapshot or when the target is not yet known. It exposes `nextAction` and candidate options without exposing connection headers.
+2. If the user asks what is already connected, or before attaching by default, call `list_debug_tools_connections`.
+3. If a suitable active connection exists, reuse it. When exactly one active connection exists it may be selected automatically; when several exist, pass an explicit `connectionId` or ask the user to choose.
+4. If no suitable connection exists, call `list_attachable_jvms`.
+5. If attachable JVMs are returned, ask only when multiple plausible JVMs match the user's target. Otherwise attach the obvious target with `attach_local_jvm`.
+6. If `list_attachable_jvms` returns `count=0` or an empty `jvms` list, call `list_debug_tools_run_configurations` and pass filters such as `moduleName`, `mainClassNameContains`, or `typeDisplayName` when known. Offer only startup paths supported by actual context.
+7. If only DebugTools Hotswap is known to be available, ask whether to start one with DebugTools Hotswap unless the user already authorized launch-if-needed behavior. If IDEA native Run/Debug is also known to be available from user context, tool output, or a future MCP capability, ask the user to choose between Hotswap and native Run/Debug.
+8. After any Hotswap startup request, follow `execute_debug_tools_run_configuration.nextAction`. Use `LIST_DEBUG_TOOLS_CONNECTIONS` to re-check connections, or `LIST_ATTACHABLE_JVMS` to locate the started JVM and attach. Do not treat `execute_debug_tools_run_configuration.success=true` as proof that DebugTools is connected.
+9. If the user chooses IDEA native Run/Debug, ask them to start the app in IDEA, then repeat connection discovery after they report startup is complete.
+10. For methods with parameters, call `generate_method_args_template` before manually writing `argsJson`, unless the exact `argsJson` is already known.
+11. Fill only the `content` values in the template unless the user explicitly wants to change parameter protocol types.
+12. After a fresh attach or Hotswap startup, run the Spring readiness gate before invoking Spring-like `Controller`, `Service`, repository, component, or bean methods.
+13. Call `invoke_java_method` with `connectionId` when there are multiple active connections.
+14. If startup was authorized and manual attach is required, call `attach_local_jvm` with `waitForConnectionMillis` so the result can provide `connectionId` directly.
 
 ## Spring Readiness Gate
 
@@ -60,10 +67,10 @@ Do not force this gate for obvious non-Spring static utility methods.
 ## Result View Rules
 
 - `invoke_java_method.result` is the ToString view.
-- If the user asks to view the result as JSON, use direct DebugTools HTTP `POST /result/type` with `printResultType=Json`, using `host` and `httpPort` from `list_debug_tools_connections` and `offsetPath` from `invoke_java_method`.
-- If the user asks for DebugTools Debug-style object inspection, use direct DebugTools HTTP `POST /result/type` with `printResultType=Debug`. Fetch children with `POST /result/detail` only when field expansion is needed, using the selected node's `filedOffset` as request `offsetPath`.
-- Do not invent MCP result-view parameters or tools. Result JSON/Debug viewing follows the same direct HTTP pattern as ClassLoader discovery.
-- If `httpPort` or `offsetPath` is missing, report that JSON/Debug result view HTTP is unavailable.
+- `resultView` is optional and defaults to `TO_STRING`. Pass `JSON`, `DEBUG`, or `NONE` when the MCP result mode is requested explicitly.
+- `JSON` and `DEBUG` are fetched by the plugin from the selected connection's existing result endpoints. The response includes `resultJson`, `resultFetchStatus`, and `resultFetchError` when applicable.
+- If result fetching fails, keep the method invocation outcome separate: the invocation can succeed while `resultFetchStatus=FAILED`. Report the fetch error and retry only when useful.
+- Direct `POST /result/type` and `POST /result/detail` remain a compatibility fallback when an older plugin does not expose `resultView`, or when bounded Debug child expansion is needed. Use `host`, `httpPort`, and `offsetPath` from MCP output.
 
 ## Spring Config Rules
 
@@ -75,9 +82,20 @@ Do not force this gate for obvious non-Spring static utility methods.
 
 ## Compile And Reload Modified Files
 
-Call `compile_and_reload_modified_files` when the task needs recent Java code changes loaded into an attached Java debugger session. Do not require an explicit user request when reload is the natural next step, and do not use `git status` to decide or restrict the scope.
+Call `compile_and_reload_modified_files` when the task needs recent Java code changes loaded into an attached Java debugger session. Do not require an explicit user request when reload is the natural next step, and do not use `git status` to decide or restrict the scope. Pass `waitMillis` when bounded feedback is needed and retain the returned `operationId` if the request times out.
 
-The "modified files" are IDEA Java Debugger HotSwap changed files/classes tracked since debugger session start or the previous reload. They are not VCS/git modified files. `success=true` means the request was submitted to IDEA; compile and HotSwap progress or failures are reported by IDEA's native UI/notifications. If the tool returns multiple `availableSessionNames`, choose the clear target or ask the user for the session name.
+The "modified files" are IDEA Java Debugger HotSwap changed files/classes tracked since debugger session start or the previous reload. They are not VCS/git modified files. `success=true` means the request was submitted to IDEA; compile and HotSwap progress or failures are reported by IDEA's native UI/notifications. If the tool returns multiple `availableSessionNames`, choose the clear target or ask the user for the session name. Use `get_hotswap_operation` with `operationId` to query a pending request.
+
+## Closed-Loop Tools
+
+- Use `read_target_application_logs` after an invocation when the user asks what the target logged. Pass `connectionId` when needed and use `limit`, `since`, `level`, and `keyword` to keep the response bounded. `LOGS_UNAVAILABLE` means the target could not provide log capability; it does not mean the log stream is empty.
+- Use `get_last_sql_statements` to inspect recent SQL from the target JVM ring buffer. The IDEA SQL history file remains available in the SQL History UI; the MCP tool reports `SQL_HISTORY_UNAVAILABLE` when the target endpoint cannot provide data.
+- Use `search_http_url` for path-to-controller discovery. It returns stable JSON and supports method, module, and limit filters; do not expect PSI or Swing navigation objects.
+- Use `run_and_invoke` when the user requests the full status → reload → invoke → logs/SQL loop. It may start or attach only when `allowStart=true` with an exact `runConfigurationName`, or `allowAttach=true` with an explicit `pid`. Never guess a run configuration or JVM from a fuzzy name.
+
+## Structured Errors
+
+New and enhanced tools use an error object with `code`, `message`, `hint`, `availableOptions`, `retryable`, `nextAction`, and `details`. Common codes include `NO_PROJECT`, `CONNECTION_NOT_FOUND`, `CONNECTION_AMBIGUOUS`, `NO_CONNECTION`, `SESSION_AMBIGUOUS`, `SPRING_NOT_READY`, `HOTSWAP_FAILED`, `RESULT_FETCH_FAILED`, `LOGS_UNAVAILABLE`, `SQL_HISTORY_UNAVAILABLE`, and `TIMEOUT`. Use `availableOptions` as the source for the next selection instead of parsing prose.
 
 ## Connection Selection Rules
 

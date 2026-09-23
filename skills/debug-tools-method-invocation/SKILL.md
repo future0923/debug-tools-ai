@@ -1,11 +1,11 @@
 ---
 name: debug-tools-method-invocation
-description: Use when operating DebugTools IntelliJ MCP tools for Java method invocation, JVM attachment, connection discovery, argsJson template generation, classloader selection, overloaded methods, or failures involving list_debug_tools_connections, list_attachable_jvms, attach_local_jvm, generate_method_args_template, invoke_java_method, no attachable JVMs, or Hotswap startup fallback through list_debug_tools_run_configurations and execute_debug_tools_run_configuration.
+description: Use when operating DebugTools IntelliJ MCP tools for status discovery, Java method invocation, JVM attachment, connection selection, argsJson template generation, result views, logs, SQL, classloader selection, overloaded methods, or failures involving get_debug_tools_status, list_debug_tools_connections, list_attachable_jvms, attach_local_jvm, generate_method_args_template, invoke_java_method, read_target_application_logs, get_last_sql_statements, run_and_invoke, no attachable JVMs, or Hotswap startup fallback.
 ---
 
 # DebugTools Method Invocation
 
-Use DebugTools as a live Java method invocation bridge. The workflow is MCP-first: choose the IntelliJ project, find or attach a DebugTools connection, prepare arguments, then invoke. Use local process commands only when the user explicitly asks for diagnostics.
+Use DebugTools as a live Java method invocation bridge. The workflow is MCP-first: choose the IntelliJ project, inspect status, find or attach a DebugTools connection, prepare arguments, invoke, and optionally inspect logs or SQL. Use local process commands only when the user explicitly asks for diagnostics.
 
 ## Toolset
 
@@ -16,6 +16,12 @@ Method invocation tools:
 - `attach_local_jvm`
 - `generate_method_args_template`
 - `invoke_java_method`
+- `list_method_around_scripts`
+- `get_method_around_script`
+- `get_debug_tools_status`
+- `read_target_application_logs`
+- `get_last_sql_statements`
+- `search_http_url`
 
 Startup recovery tools, used only when no active connection and no attachable JVMs are available:
 
@@ -25,21 +31,22 @@ Startup recovery tools, used only when no active connection and no attachable JV
 ## Hard Boundaries
 
 - If the DebugTools MCP tools are not exposed in the current Codex tool context, stop and report a configuration error. Do not fall back to shell process inspection, local startup, direct HTTP probing, reflection runners, or Java/Maven commands for discovery or invocation.
-- Direct DebugTools HTTP is allowed only after MCP has returned a selected connection with `host` and `httpPort`, and only for documented companion endpoints: Spring readiness, ClassLoader checks, and JSON/Debug result views.
+- Direct DebugTools HTTP is allowed only after MCP has returned a selected connection with `host` and `httpPort`, and only for documented companion endpoints such as Spring readiness, ClassLoader checks, and compatibility result views. Prefer MCP `resultView` when it is available.
 - `GET /spring/ready` is a DebugTools companion HTTP endpoint, not an MCP tool. Use only the selected MCP connection `host` and `httpPort`; do not guess `127.0.0.1:22222`, scan ports, or use `ps`/`jps` as a substitute for MCP connection selection.
-- Do not invent MCP tools or parameters such as `list_debug_tools_classloaders`, `resultFormats`, `debugDepth`, or result-view MCP fields.
+- Do not invent MCP tools or parameters. The supported result mode is `resultView=TO_STRING|JSON|DEBUG|NONE`; do not send obsolete names such as `resultFormats` or `debugDepth`.
 
 ## Invocation Flow
 
 1. Infer `projectPath` from the target source path or workspace when possible. If MCP reports ambiguous open projects, retry the same MCP call with the inferred project.
-2. Call `list_debug_tools_connections` before attaching unless the user gave a fresh PID.
-3. Reuse a matching active connection. If multiple connections are plausible, pass `connectionId`; ask only when metadata cannot disambiguate.
+2. Prefer `get_debug_tools_status` for a complete snapshot and follow its `nextAction`. Call `list_debug_tools_connections` when you only need connection details or before attaching unless the user gave a fresh PID.
+3. Reuse a matching active connection. Exactly one active connection may be selected automatically; if multiple connections are plausible, pass `connectionId` or use the structured `availableOptions` to ask the user.
 4. If no suitable connection exists, call `list_attachable_jvms`, select a PID, then `attach_local_jvm`. Use bounded `waitForConnectionMillis` when attach is part of an authorized invocation workflow.
-5. If no JVMs are attachable, read `references/workflow.md` for Hotswap startup recovery using `list_debug_tools_run_configurations` and `execute_debug_tools_run_configuration`.
+5. If no JVMs are attachable, read `references/workflow.md` for Hotswap startup recovery. Starting a run configuration requires explicit user authorization or `run_and_invoke.allowStart=true` with an exact name.
 6. Prepare parameters: omit `argsJson` for no-arg methods, build simple known values directly, and use `generate_method_args_template` for complex args, uncertain names, generated defaults, or overloads.
 7. Before invoking a Spring-like target after a fresh `attach_local_jvm` or Hotswap startup recovery, run the Readiness Gate below.
-8. Call `invoke_java_method` with `className`, `methodName`, plus `projectPath`, `connectionId`, `parameterTypes`, `argsJson`, or `classLoaderIdentity` only when needed.
-9. If invocation fails, recover from the specific error instead of retrying unchanged; see `references/troubleshooting.md`.
+8. Call `invoke_java_method` with `className`, `methodName`, plus `projectPath`, `connectionId`, `parameterTypes`, `argsJson`, `classLoaderIdentity`, and `resultView` only when needed. When a saved Method Around script should run, list scripts first, choose an exact returned name, and pass it as `methodAroundName`. Use `get_method_around_script` when you need to inspect the source; do not construct a script path or guess a filename.
+9. If invocation fails, recover from the specific structured error instead of retrying unchanged; see `references/troubleshooting.md`.
+10. When the user requests the complete loop, prefer `run_and_invoke`; request logs or SQL with `verifyLogs` and `verifySql`, or use `read_target_application_logs` and `get_last_sql_statements` separately.
 
 ## Readiness Gate
 
@@ -75,10 +82,16 @@ ClassLoader discovery is direct DebugTools HTTP after MCP connection discovery, 
 ## Result Views
 
 - `invoke_java_method.result` is the ToString view.
-- For JSON output, call direct DebugTools HTTP `POST /result/type` with `printResultType=Json`, using connection `host`/`httpPort` and invocation `offsetPath`.
-- For Debug view or object-field inspection, call `POST /result/type` with `printResultType=Debug`.
-- For Debug expansion, call `POST /result/detail` with the selected node's `filedOffset` as request `offsetPath`. The `filedOffset` spelling matches the current DebugTools protocol.
-- If `httpPort` or `offsetPath` is missing, report that JSON/Debug result view HTTP is unavailable.
+- Pass `resultView=JSON` or `resultView=DEBUG` to let the plugin fetch the existing result representation; use `NONE` when only invocation metadata is needed.
+- Read `resultJson`, `resultFetchStatus`, and `resultFetchError` from the response. A method can succeed while result fetching fails.
+- For older plugins, use direct `POST /result/type` and bounded `POST /result/detail` with the selected connection metadata and `offsetPath` as described in `references/http-result-view.md`.
+
+## Observability And Errors
+
+- `read_target_application_logs` returns bounded target JVM log records. Use `limit`, `since`, `level`, and `keyword`; `LOGS_UNAVAILABLE` is a capability error.
+- `get_last_sql_statements` returns target SQL ring-buffer records. IDEA SQL history remains available in its UI; `SQL_HISTORY_UNAVAILABLE` means the target endpoint is unavailable.
+- New tools expose structured error objects. Prefer `error.code`, `error.retryable`, `error.nextAction`, and `error.availableOptions` over matching error prose.
+- Saved Method Around scripts are project-local files. `list_method_around_scripts` returns names and metadata, while `get_method_around_script` returns source and identity. A missing or unsafe name is an explicit script error; do not retry with a path variant.
 - See `references/http-result-view.md` for request shapes and expansion limits.
 
 ## argsJson Contract

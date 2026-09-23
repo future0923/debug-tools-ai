@@ -1,4 +1,4 @@
-# JSON Result View HTTP
+# JSON Result View
 
 ## Scenario
 
@@ -12,41 +12,31 @@ Assume an active DebugTools connection already exists and the method has no para
 
 ## Expected Behavior
 
-The agent should first call `list_debug_tools_connections` and keep the selected connection `host` and `httpPort`. Then it should call `invoke_java_method` with the normal MCP method invocation arguments only:
+The agent should select a connection, then call `invoke_java_method` with:
 
 ```json
 {
   "className": "com.demo.UserController",
-  "methodName": "getUser"
+  "methodName": "getUser",
+  "resultView": "JSON"
 }
 ```
 
-After `invoke_java_method` returns, it should use the returned `offsetPath` to fetch the JSON view by direct DebugTools HTTP, not by extra MCP parameters:
-
-```http
-POST http://<host>:<httpPort>/result/type
-Content-Type: application/json
-
-{
-  "printResultType": "Json",
-  "offsetPath": "<offsetPath from invoke_java_method>"
-}
-```
-
-If the HTTP view fetch fails, it should report that JSON rendering failed while keeping the method invocation result separate.
+It should read `resultJson`, `resultFetchStatus`, and `resultFetchError` from the response. If the plugin reports `resultFetchStatus=FAILED`, it should keep the successful method invocation separate from the JSON rendering failure and may use the selected connection's `host`, `httpPort`, and `offsetPath` for the documented HTTP fallback.
 
 ## Pass Criteria
 
-- Calls `list_debug_tools_connections` to obtain `host` and `httpPort` for the selected connection.
-- Calls `invoke_java_method`.
-- Uses `offsetPath` from `invoke_java_method`.
-- Calls direct DebugTools HTTP `POST /result/type` with `printResultType=Json`.
-- Does not request Debug view unless the user asks for DebugTools object field inspection.
+- Selects a connection through MCP before using connection metadata.
+- Calls `invoke_java_method` with `resultView=JSON` when that field is supported.
+- Returns the JSON result or clearly reports `resultFetchStatus` and `resultFetchError`.
+- Keeps invocation success separate from result fetch failure.
+- Uses direct `POST /result/type` only as a compatibility fallback.
+
+Compatibility fallback uses `printResultType=Json` with the selected `offsetPath`.
 
 ## Fail Signals
 
 - Only reads the default ToString `result` after the user asked for JSON.
-- Passes `resultFormats`, `debugDepth`, or any result-view option to `invoke_java_method`.
-- Expects `resultViews.JSON` or `resultViewErrors.JSON` from the MCP response.
-- Requests Debug view by default for a JSON-only request.
-- Treats an HTTP JSON rendering failure as proof the method invocation itself failed.
+- Passes invented fields such as `resultFormats` or `debugDepth`.
+- Expects an unrelated `resultViews.JSON` field.
+- Treats a JSON rendering failure as proof that method invocation failed.

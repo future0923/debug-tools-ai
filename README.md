@@ -7,7 +7,7 @@
 [![npm](https://img.shields.io/npm/v/debug-tools-ai)](https://www.npmjs.com/package/debug-tools-ai)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-DebugTools AI teaches Codex, Claude Code, OpenCode, Gemini, Cursor, Kimi, Pi, and other agents how to use DebugTools IntelliJ MCP tools to attach JVMs, generate method argument templates, invoke Java methods, start IntelliJ run configurations with DebugTools Hotswap, and read Spring runtime config keys.
+DebugTools AI teaches Codex, Claude Code, OpenCode, Gemini, Cursor, Kimi, Pi, and other agents how to use DebugTools IntelliJ MCP tools to inspect status, select or attach JVMs, reload and invoke Java methods, inspect JSON results, logs and SQL, start IntelliJ run configurations with DebugTools Hotswap, and read Spring runtime config keys.
 
 ## 30-Second Start
 
@@ -58,15 +58,20 @@ invoke_java_method
 Agents using this package can:
 
 - inspect current DebugTools connections
+- aggregate connection, JVM, debugger session, readiness, and capability status
 - list attachable JVM processes
 - attach the DebugTools agent to a local JVM
 - generate DebugTools `argsJson` templates from Java method signatures
 - invoke Java methods through DebugTools
+- request ToString, JSON, Debug, or metadata-only invocation results
+- read bounded target application logs and recent SQL statements
+- search indexed HTTP endpoints and controller method metadata
 - list IntelliJ run configurations for DebugTools Hotswap launch
 - start a run configuration with the DebugTools Hotswap executor
 - recover from ClassLoader issues through DebugTools HTTP when needed
 - wait for Spring readiness after fresh attach or Hotswap startup before invoking Spring methods
 - read Spring runtime Environment config keys through DebugTools HTTP
+- run the status → reload → invoke → logs/SQL loop with `run_and_invoke`
 
 ## Requirements
 
@@ -222,12 +227,13 @@ skills/debug-tools-spring-config/SKILL.md
 Core method invocation sequence:
 
 ```text
-list_debug_tools_connections
+get_debug_tools_status
+list_debug_tools_connections       # when connection details are needed
 list_attachable_jvms
 attach_local_jvm
 GET /spring/ready              # only for Spring-like targets after fresh attach or Hotswap startup
 generate_method_args_template
-invoke_java_method
+invoke_java_method resultView=JSON|DEBUG|NONE when requested
 ```
 
 Hotswap skill:
@@ -241,7 +247,11 @@ Core Hotswap sequence:
 ```text
 list_debug_tools_run_configurations
 execute_debug_tools_run_configuration
+compile_and_reload_modified_files
+get_hotswap_operation             # when an operationId is pending
 ```
+
+For a complete loop, use `run_and_invoke`. Starting and attaching are explicit: pass `allowStart=true` with an exact `runConfigurationName`, or `allowAttach=true` with an explicit `pid`.
 
 Details:
 

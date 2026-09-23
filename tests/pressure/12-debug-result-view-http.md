@@ -1,4 +1,4 @@
-# Debug Result View HTTP
+# Debug Result View
 
 ## Scenario
 
@@ -12,53 +12,30 @@ Assume an active DebugTools connection already exists and the method has no para
 
 ## Expected Behavior
 
-The agent should first call `list_debug_tools_connections` and keep the selected connection `host` and `httpPort`. Then it should call `invoke_java_method` with the normal MCP method invocation arguments only:
+The agent should select a connection and call:
 
 ```json
 {
   "className": "com.demo.UserController",
-  "methodName": "getUser"
+  "methodName": "getUser",
+  "resultView": "DEBUG"
 }
 ```
 
-After `invoke_java_method` returns, it should use the returned `offsetPath` to fetch the Debug root by direct DebugTools HTTP:
-
-```http
-POST http://<host>:<httpPort>/result/type
-Content-Type: application/json
-
-{
-  "printResultType": "Debug",
-  "offsetPath": "<offsetPath from invoke_java_method>"
-}
-```
-
-If the user asks to inspect fields, it should expand one selected node at a time with direct DebugTools HTTP. The selected Debug node's response field is named `filedOffset`; send that value as request `offsetPath`:
-
-```http
-POST http://<host>:<httpPort>/result/detail
-Content-Type: application/json
-
-{
-  "offsetPath": "<selected node filedOffset>"
-}
-```
-
-It should avoid deep or unbounded Debug expansion.
+It should use the returned Debug result as the root. If a field must be expanded and the plugin does not include the child data, use the compatibility `POST /result/detail` endpoint with the selected node's `filedOffset` as `offsetPath`, one bounded node at a time.
 
 ## Pass Criteria
 
-- Calls `list_debug_tools_connections` to obtain `host` and `httpPort` for the selected connection.
-- Calls `invoke_java_method`.
-- Uses `offsetPath` from `invoke_java_method`.
-- Calls direct DebugTools HTTP `POST /result/type` with `printResultType=Debug`.
-- Calls direct DebugTools HTTP `POST /result/detail` only when field expansion is needed, using the selected node's `filedOffset` as request `offsetPath`.
-- Keeps Debug expansion bounded.
+- Selects a connection through MCP before using connection metadata.
+- Calls `invoke_java_method` with `resultView=DEBUG` when that field is supported.
+- Keeps `resultFetchStatus` and `resultFetchError` separate from invocation status.
+- Uses bounded direct HTTP expansion only when needed or when the plugin lacks the result mode.
+
+The compatibility root request uses `printResultType=Debug`.
 
 ## Fail Signals
 
 - Only reads the default ToString `result` after the user asked for Debug view.
-- Passes `resultFormats`, `debugDepth`, or any result-view option to `invoke_java_method`.
-- Expects `resultViews.DEBUG` from the MCP response.
+- Passes invented fields such as `resultFormats` or `debugDepth`.
+- Expects an unrelated `resultViews.DEBUG` field.
 - Performs large or unbounded Debug expansion.
-- Requests JSON instead of Debug when the user asks for object-field Debug inspection.
