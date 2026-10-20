@@ -1,8 +1,11 @@
 {
   "name": "debug-tools-ai",
   "version": "0.1.0",
-  "description": "AI agent support package for DebugTools MCP method invocation, Hotswap, and Spring config workflows",
+  "description": "One DebugTools workflow skill for Java connection, startup/reload, invocation/results, HTTP, deployment, Spring and runtime diagnosis.",
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "main": ".opencode/plugins/debug-tools-ai.js",
   "license": "MIT",
   "homepage": "https://github.com/future0923/debug-tools-ai",
@@ -15,7 +18,9 @@
   },
   "scripts": {
     "validate": "bash scripts/validate.sh",
+    "verify:workspace": "python3 scripts/verify-workspace.py",
     "doctor": "bash scripts/doctor.sh",
+    "test:adapters": "node --test tests/adapters.test.mjs",
     "uninstall:local": "bash scripts/uninstall.sh",
     "check:versions": "bash scripts/check-versions.sh",
     "check:manifests": "bash scripts/check-manifest-paths.sh",
@@ -39,7 +44,7 @@
     "examples",
     "scripts",
     "skills",
-    "tests/pressure",
+    "tests",
     ".codex-plugin",
     ".claude-plugin",
     ".cursor-plugin",

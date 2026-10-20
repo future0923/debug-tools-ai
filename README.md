@@ -130,7 +130,7 @@ Detailed install notes: [docs/installation.md](docs/installation.md).
 | Cursor | `bash install.sh --cursor` |
 | Kimi | `bash install.sh --kimi` |
 | Pi | `bash install.sh --pi` |
-| Generic agents | Use `AGENTS.md` |
+| Generic agents | Load `skills/debug-tools/SKILL.md`; `CLAUDE.md` is the shared runtime context |
 
 Marketplace and host-specific installs may require host review after publication.
 
@@ -205,24 +205,15 @@ Spring config read:
 
 ```text
 User: Read server.port from the attached Spring app.
-AI: list_debug_tools_connections -> POST /spring/config with ["server.port"]
+AI: list_debug_tools_connections -> get_spring_config keys=["server.port"]
+# Older plugin fallback: POST /spring/config on the selected agent host/httpPort.
 ```
 
 More examples: [docs/examples.md](docs/examples.md). Install transcripts: [docs/transcripts.md](docs/transcripts.md). Chinese docs: [docs/installation-zh.md](docs/installation-zh.md), [docs/examples-zh.md](docs/examples-zh.md), [docs/transcripts-zh.md](docs/transcripts-zh.md). Spring Boot demo: [examples/spring-boot-demo.md](examples/spring-boot-demo.md).
 
 ## Workflow Reference
 
-Method invocation skill:
-
-```text
-skills/debug-tools-method-invocation/SKILL.md
-```
-
-Spring config skill:
-
-```text
-skills/debug-tools-spring-config/SKILL.md
-```
+One shared [DebugTools skill](skills/debug-tools/SKILL.md) covers invocation, startup/reload, Spring and diagnostics. Its references load only when the request needs them.
 
 Core method invocation sequence:
 
@@ -234,12 +225,6 @@ attach_local_jvm
 GET /spring/ready              # only for Spring-like targets after fresh attach or Hotswap startup
 generate_method_args_template
 invoke_java_method resultView=JSON|DEBUG|NONE when requested
-```
-
-Hotswap skill:
-
-```text
-skills/debug-tools-hotswap/SKILL.md
 ```
 
 Core Hotswap sequence:
@@ -257,9 +242,7 @@ Details:
 
 - Workflow: [docs/workflow.md](docs/workflow.md)
 - Tool contracts: [docs/tool-contracts.md](docs/tool-contracts.md)
-- Method invocation skill: [skills/debug-tools-method-invocation/SKILL.md](skills/debug-tools-method-invocation/SKILL.md)
-- Hotswap skill: [skills/debug-tools-hotswap/SKILL.md](skills/debug-tools-hotswap/SKILL.md)
-- Spring config skill: [skills/debug-tools-spring-config/SKILL.md](skills/debug-tools-spring-config/SKILL.md)
+- [DebugTools unified workflow skill](skills/debug-tools/SKILL.md)
 
 ## Validation
 
@@ -294,3 +277,21 @@ bash bin/debug-tools-ai prepublish-check
 ```
 
 Release requires version updates, `CHANGELOG.md`, `git tag`, GitHub Release, and host-specific marketplace submission where applicable. The release workflow uses `softprops/action-gh-release`.
+
+## Runtime diagnostics
+
+The unified `debug-tools` skill handles timeout recovery, retained objects and
+streams, slow calls, method watches and async correlation within the same workflow.
+Pi users can describe the task directly: `/debug-tools <request>`.
+
+- [Usage guide (Chinese)](docs/runtime-diagnostics.md)
+- [Regression results and remaining checks (Chinese)](docs/runtime-regression-2026-10-14.md)
+
+## Workspace verification / 三仓库验收
+
+Run `bash bin/debug-tools-ai verify-workspace` to rebuild the agent, sync the
+embedded jar, run the five-JDK matrix and IDEA checks, compare exported contracts,
+and verify the final plugin. See [统一验收命令](docs/workspace-verification.md) and
+[实机验收步骤](docs/live-acceptance.md) for requirements and remaining environment checks.
+
+Current workflow entry / 当前统一入口：`skills/debug-tools/SKILL.md`。详见 [工作流分组与迁移](docs/workflow-groups.md)。

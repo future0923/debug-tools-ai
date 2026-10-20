@@ -1,5 +1,17 @@
 # DebugTools MCP Tool Contracts
 
+The machine-readable input snapshot is [mcp-input-contracts.json](mcp-input-contracts.json).
+It is generated from the IDEA plugin's registered schema objects, not hand-edited.
+After changing tools, run `McpContractExportTest` in the IDEA repository, copy
+`build/generated/debug-tools-mcp-contracts.json` to this snapshot, and run:
+
+```bash
+python3 scripts/check-tool-contracts.py --plugin-export ../debug-tools-idea/build/generated/debug-tools-mcp-contracts.json
+```
+
+This checks exact input-contract drift. It does not validate output schemas or
+prove runtime availability; the current MCP catalog remains authoritative.
+
 ## Toolset
 
 Method invocation tools are exposed under `DebugToolsMethodInvocationToolset` because they all support the Java method invocation workflow: inspect connections, discover JVMs, attach when needed, generate method argument templates, and invoke the target method.
@@ -73,7 +85,7 @@ Ready response:
 {"ready":true,"state":"UP","retryable":false}
 ```
 
-HTTP `200` or `ready=true` means the agent can continue to `invoke_java_method`.
+HTTP `2xx` together with `ready=true` and `state=UP` means the agent can continue to `invoke_java_method`.
 
 Starting response:
 
@@ -306,3 +318,54 @@ The tool is intended for the closed loop: inspect status, select a target, optio
 ## Structured errors
 
 New and enhanced tools may return `{success:false, error:{code, message, hint, availableOptions, retryable, nextAction, details}, requestId, timestamp}`. Use `availableOptions` objects (`id`, `name`, `type`, `state`, `hint`) for target selection. Common codes include `NO_PROJECT`, `INVALID_ARGUMENT`, `CONNECTION_NOT_FOUND`, `CONNECTION_INACTIVE`, `CONNECTION_AMBIGUOUS`, `NO_CONNECTION`, `NO_DEBUGGER_SESSION`, `SESSION_NOT_FOUND`, `SESSION_AMBIGUOUS`, `SPRING_NOT_READY`, `HTTP_UNAVAILABLE`, `HOTSWAP_UNSUPPORTED`, `HOTSWAP_COMPILE_FAILED`, `HOTSWAP_CLASS_STRUCTURE_CHANGED`, `HOTSWAP_FAILED`, `INVOCATION_FAILED`, `RESULT_FETCH_FAILED`, `LOGS_UNAVAILABLE`, `SQL_HISTORY_UNAVAILABLE`, `TIMEOUT`, and `INTERNAL_ERROR`.
+
+## Optional runtime and recovery tools
+
+Use the runtime MCP catalog as the authority. These extensions return
+`{success:true,data,requestId,timestamp}` or the structured error envelope above.
+All accept `projectPath` and optional `connectionId`; an ambiguous target requires
+an explicit choice. They may be absent from older installed plugins or agents.
+
+| Tool | Inputs beyond target selection | Data and interpretation |
+|---|---|---|
+| `get_agent_capabilities` | None | agentVersion, protocolVersion, agentInstanceId, capabilities, limits, logSources; support is not runtime readiness |
+| `manage_business_log_capture` | action STATUS/START/STOP; START/STOP require framework LOGBACK/LOG4J2 and classLoaderIdentity | root-appender capture state, startedAt, captured count, errors and scope limitations; records are read separately |
+| `get_spring_config` | Required keys array, 1–100 keys | connectionId, source=SPRING_ENVIRONMENT, values; null means unresolved |
+| `wait_for_application_ready` | waitMillis 0–120000, default 30000 | ready, state, retryable, message; successful query envelope alone does not mean ready |
+| `find_class_loaders` | className, offset, limit 1–200 | items with identity/name/canLoadClass, total, nextOffset; read all pages before deciding uniqueness |
+| `get_method_trace` | Required traceOffsetPath; maxDepth, maxNodes, minDurationMillis, topN | nodes with parentId, hotspots, truncation; durations are inclusive |
+| `inspect_run_result` | Required offsetPath; view, offset, limit 1–200, maxDepth 1–20, maxNodes 1–2000 | inspection with bounded value/items; RESULT_EXPIRED differs from null |
+| `get_invocation_result` | Required invocationId; waitMillis 0–30000 | COMPLETED result, UNKNOWN_OR_PENDING, or an available stream snapshot; no re-execution |
+| `read_invocation_stream` | Required invocationId; afterCursor, limit 1–256 | events, state, nextCursor, gap, droppedEvents; not a durable replay log |
+| `cancel_invocation_stream` | Required invocationId | cancelRequested and snapshot; verify terminal event separately |
+| `get_jvm_snapshot` | None | uptime, heap/nonHeap, GC counters, threads, class counts, load; -1 means unsupported |
+| `get_thread_snapshot` | offset, limit 1–256, maxDepth 0–128 | live paged stacks, locks, deadlock IDs and detection scope |
+| `inspect_runtime_class` | Exact className or nameContains length ≥3; optional classLoaderIdentity, offset, limit 1–100, methodLimit 0–200 | already-loaded class metadata, methods, source jar; no class initialization |
+
+Corresponding agent additions are `POST /result/inspect`, `POST /capabilities`,
+`POST /runtime/jvm`, `POST /runtime/threads`, `POST /runtime/classes`, and `POST /logs/capture`.
+The other queries reuse existing documented HTTP or socket protocols. A missing
+new endpoint returns CAPABILITY_UNAVAILABLE; do not interpret it as empty data.
+Stream handles are project-local, retain 256 events and request cancellation after
+five minutes. Invocation handles expire after 30 minutes.
+
+## Completion contract
+
+For reload-dependent invocation, wait for `status=SUCCESS` from the same project and `operationId`. `REQUESTED`, `COMPILING`, `RELOADING`, and `TIMEOUT` do not permit invocation. Use `get_hotswap_operation` to continue observing; do not submit a duplicate reload. An older plugin exposing only request submission cannot prove completion. Empty per-class details mean unavailable detail, not that zero classes changed. `run_and_invoke` keeps one target connection and requires a successful reload before invoking. Log/SQL evidence failures are distinct from invocation failure.
+
+## Complete extension catalog and machine contracts
+
+The generated [MCP contract snapshot](mcp-input-contracts.json) contains all registered
+input schemas and output envelopes. Compare it with the IDEA test export using
+`scripts/check-tool-contracts.py --plugin-export <path>`. Validate a captured JSON
+response using `--tool execute_http_request --response <path>`. The validator fails
+on unsupported schema vocabulary rather than silently skipping checks. Legacy
+outputs retain tool-specific shapes and error text; their schema is deliberately
+weaker. Selected modern tools additionally constrain essential payload fields.
+This is a wire-shape check, not proof of semantic success or endpoint availability.
+
+See [extended workflows](../skills/debug-tools/references/extended-workflows.md)
+for all execution/diagnostic boundaries and [extension inventory](extension-inventory.md)
+for the complete registered tool list. All modern tools use a success/data or
+error envelope. Inspect inner operation state; success=true is not a deployment,
+readiness, cancellation, or business-success guarantee.

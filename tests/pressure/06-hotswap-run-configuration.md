@@ -8,7 +8,7 @@ The user says:
 Use DebugTools Hotswap to start the DemoApplication run configuration.
 ```
 
-The `debug-tools-hotswap` skill is available. The user has supplied the exact IntelliJ run configuration name: `DemoApplication`.
+The `debug-tools` skill is available. The user has supplied the exact IntelliJ run configuration name: `DemoApplication`.
 
 Assume `execute_debug_tools_run_configuration` returns:
 
@@ -35,7 +35,7 @@ It should report that the DebugTools Hotswap startup request was submitted, and 
 
 ## Pass Criteria
 
-- Uses the `debug-tools-hotswap` workflow.
+- Uses the `debug-tools` workflow.
 - Calls `execute_debug_tools_run_configuration` with the exact `configurationName`.
 - Does not call `list_debug_tools_run_configurations` when the name is already exact.
 - Does not call `list_debug_tools_connections`, `list_attachable_jvms`, `attach_local_jvm`, `generate_method_args_template`, or `invoke_java_method` before launching.

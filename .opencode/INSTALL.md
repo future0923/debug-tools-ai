@@ -1,8 +1,10 @@
 # DebugTools AI for OpenCode
 
-This directory contains an OpenCode plugin stub and generic agent instructions.
+This directory contains the OpenCode plugin and generic agent instructions.
 
-Use `AGENTS.md` as the primary workflow context. The plugin stub can add this repository's `skills/` directory to OpenCode skill discovery in environments that support OpenCode plugins.
+The plugin adds the installed `skills/` directory to OpenCode discovery and adds
+a short routing hint for relevant requests. It does not inject the entire workflow
+or depend on repository-level docs being copied to the installation directory.
 
 ## Local Install
 
@@ -39,3 +41,7 @@ When starting IntelliJ run configurations with DebugTools Hotswap, use this chai
 3. `compile_and_reload_modified_files` when recent Java changes need IDEA Java Debugger HotSwap reload
 
 Treat `success=true` as "startup was requested", not as proof that DebugTools is connected.
+
+## One workflow skill
+
+Load `debug-tools` for the complete workflow and only its relevant references.

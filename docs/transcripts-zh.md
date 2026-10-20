@@ -69,13 +69,13 @@ debug-tools-ai installation finished
 安装脚本输出 `debug-tools-ai installation finished` 后，新建一个 Agent 会话。也可以检查对应目录中是否存在 Skill 文件，例如：
 
 ```text
-Codex:      ~/.codex/skills/debug-tools-method-invocation/SKILL.md
-Claude Code: ~/.claude/plugins/debug-tools-ai/skills/debug-tools-method-invocation/SKILL.md
-Gemini:    ~/.gemini/extensions/debug-tools-ai/skills/debug-tools-method-invocation/SKILL.md
-OpenCode:  ~/.config/opencode/debug-tools-ai/skills/debug-tools-method-invocation/SKILL.md
-Cursor:    ~/.cursor/plugins/debug-tools-ai/skills/debug-tools-method-invocation/SKILL.md
-Kimi:      ~/.kimi/plugins/debug-tools-ai/skills/debug-tools-method-invocation/SKILL.md
-Pi:        ~/.pi/packages/debug-tools-ai/skills/debug-tools-method-invocation/SKILL.md
+Codex:      ~/.codex/skills/debug-tools/SKILL.md
+Claude Code: ~/.claude/plugins/debug-tools-ai/skills/debug-tools/SKILL.md
+Gemini:    ~/.gemini/extensions/debug-tools-ai/skills/debug-tools/SKILL.md
+OpenCode:  ~/.config/opencode/debug-tools-ai/skills/debug-tools/SKILL.md
+Cursor:    ~/.cursor/plugins/debug-tools-ai/skills/debug-tools/SKILL.md
+Kimi:      ~/.kimi/plugins/debug-tools-ai/skills/debug-tools/SKILL.md
+Pi:        ~/.pi/packages/debug-tools-ai/skills/debug-tools/SKILL.md
 ```
 
 这里不需要运行额外的全局命令。安装器只是把文件复制到客户端能够发现的位置。

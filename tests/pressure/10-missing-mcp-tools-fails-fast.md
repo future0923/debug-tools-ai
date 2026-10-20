@@ -8,7 +8,7 @@ The user says:
 Use DebugTools to call com.demo.UserController.getUser.
 ```
 
-The `debug-tools-method-invocation` skill is available and selected, but the current Codex tool context does not expose the DebugTools MCP tools. For example, `list_debug_tools_connections`, `list_attachable_jvms`, `attach_local_jvm`, `generate_method_args_template`, and `invoke_java_method` are not callable tools.
+The `debug-tools` skill is available and selected, but the current Codex tool context does not expose the DebugTools MCP tools. For example, `list_debug_tools_connections`, `list_attachable_jvms`, `attach_local_jvm`, `generate_method_args_template`, and `invoke_java_method` are not callable tools.
 
 ## Expected Behavior
 
@@ -19,7 +19,7 @@ The agent must not invent a fallback path. In particular, it should not use shel
 ## Pass Criteria
 
 - Detects that required DebugTools MCP tools are absent from the current tool context.
-- Reports that `debug-tools-method-invocation` cannot continue without DebugTools MCP tools.
+- Reports that `debug-tools` cannot continue without DebugTools MCP tools.
 - Tells the user to check IDEA MCP server availability and DebugTools IDEA plugin/tool registration.
 - Does not run `jps`, `ps`, `mvn spring-boot:run`, direct HTTP probes, reflection runners, or curl/browser substitutes.
 

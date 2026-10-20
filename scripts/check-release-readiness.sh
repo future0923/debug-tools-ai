@@ -41,7 +41,7 @@ required_files = {
     "examples",
     "scripts",
     "skills",
-    "tests/pressure",
+    "tests",
     ".codex-plugin",
     ".claude-plugin",
     ".cursor-plugin",
@@ -85,9 +85,8 @@ required_release_terms=(
   "curl -fsSL https://raw.githubusercontent.com/future0923/debug-tools-ai/main/install.sh"
   "examples/spring-boot-demo.md"
   "pressure"
-  "debug-tools-invoking-methods"
-  "debug-tools-args-json"
-  "debug-tools-classloader-recovery"
+  "skills/debug-tools/SKILL.md"
+  "workflow-groups.md"
 )
 
 for term in "${required_release_terms[@]}"; do

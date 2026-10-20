@@ -13,6 +13,7 @@ Commands:
   uninstall [flags]    Remove local integrations. Same flags as install.
   doctor [flags]       Check package files and local adapter installation state.
   validate             Run the full package validation suite.
+  verify-workspace [flags] Build/test agent + IDEA + AI and verify contracts/package.
   check-versions       Check manifest versions and changelog entry.
   smoke-install        Run installer smoke test with a temporary HOME.
   pressure             List pressure scenarios and evaluation instructions.
@@ -51,6 +52,9 @@ case "$command" in
     ;;
   validate)
     bash "$ROOT/scripts/validate.sh"
+    ;;
+  verify-workspace)
+    python3 "$ROOT/scripts/verify-workspace.py" "$@"
     ;;
   check-versions)
     bash "$ROOT/scripts/check-versions.sh"

@@ -2,7 +2,7 @@
  * DebugTools AI plugin for OpenCode.
  *
  * Adds this repository's skills directory to OpenCode skill discovery and
- * injects a compact DebugTools workflow bootstrap when plugin hooks are
+ * injects a short skill-routing hint for relevant requests when plugin hooks are
  * available.
  */
 
@@ -11,8 +11,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-let bootstrapCache;
 
 export const DebugToolsAiPlugin = async () => {
   const candidateRoots = [
@@ -24,28 +22,17 @@ export const DebugToolsAiPlugin = async () => {
   ];
 
   const packageRoot = candidateRoots.find((candidate) => {
-    return fs.existsSync(path.join(candidate, 'skills/debug-tools-method-invocation/SKILL.md'));
+    return fs.existsSync(path.join(candidate, 'skills/debug-tools/SKILL.md'));
   }) || path.resolve(__dirname, '../debug-tools-ai');
 
   const skillsDir = path.join(packageRoot, 'skills');
-  const workflowPath = path.join(packageRoot, 'docs/workflow.md');
-
-  const getBootstrapContent = () => {
-    if (bootstrapCache !== undefined) return bootstrapCache;
-
-    if (!fs.existsSync(workflowPath)) {
-      bootstrapCache = null;
-      return bootstrapCache;
-    }
-
-    const workflow = fs.readFileSync(workflowPath, 'utf8');
-    bootstrapCache = `<DEBUG_TOOLS_AI>
-Use DebugTools AI when the user asks to inspect DebugTools connections, attach a JVM, generate method arguments, invoke Java methods, list run configurations, start a run configuration with DebugTools Hotswap, or read Spring runtime config keys.
-
-${workflow}
+  // Skill discovery loads the relevant instructions on demand, including after install.
+  const bootstrap = `<DEBUG_TOOLS_AI>
+Load the discovered debug-tools skill to complete the requested Java debugging
+workflow. It connects target discovery, startup/readiness/reload when authorized,
+invocation, original-result recovery, evidence and cleanup. Read conditional
+references only when needed and use only tools in the current MCP catalog.
 </DEBUG_TOOLS_AI>`;
-    return bootstrapCache;
-  };
 
   return {
     config: async (config) => {
@@ -57,11 +44,11 @@ ${workflow}
     },
 
     'experimental.chat.messages.transform': async (_input, output) => {
-      const bootstrap = getBootstrapContent();
-      if (!bootstrap || !output.messages.length) return;
-
-      const firstUser = output.messages.find((message) => message.info.role === 'user');
+      if (!output.messages.length) return;
+      const firstUser = [...output.messages].reverse().find((message) => message.info.role === 'user');
       if (!firstUser || !firstUser.parts.length) return;
+      const text = firstUser.parts.filter((part) => part.type === 'text').map((part) => part.text).join(' ');
+      if (!/debug[ -]?tools|hotswap|invoke_java_method|附着.*JVM|热重载/i.test(text)) return;
 
       const alreadyInjected = firstUser.parts.some((part) => {
         return part.type === 'text' && part.text.includes('<DEBUG_TOOLS_AI>');

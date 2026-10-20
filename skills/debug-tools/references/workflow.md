@@ -52,7 +52,7 @@ Polling rules:
 - Interval: `1s`.
 - Timeout after fresh attach: `30s`.
 - Timeout after Hotswap startup: `60s`.
-- `ready=true` or HTTP `200`: proceed to `invoke_java_method`.
+- HTTP `2xx` together with `ready=true` and `state=UP`: proceed to `invoke_java_method`.
 - `ready=false`, `state=STARTING`, and `retryable=true`: keep polling until ready or timeout.
 - `retryable=false`: stop polling, report the state and reason, and do not invoke unless the user explicitly asks to force it.
 
@@ -131,7 +131,7 @@ Use it when:
 - The method resolves against the wrong class version.
 - Bean lookup or framework context resolution points to the wrong application classloader.
 
-When the selected ClassLoader is unclear and the connection has `host` plus `httpPort`, use direct DebugTools HTTP instead of looking for another MCP tool:
+When the selected ClassLoader is unclear, prefer exposed `find_class_loaders`. If unavailable and the connection has `host` plus `httpPort`, use the HTTP fallback:
 
 1. `GET http://<host>:<httpPort>/allClassLoader`
 2. If a target `className` is known, call `POST http://<host>:<httpPort>/classLoader/hasClass` for candidate loaders.

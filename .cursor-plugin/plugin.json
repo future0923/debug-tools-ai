@@ -1,7 +1,7 @@
 {
   "name": "debug-tools-ai",
   "displayName": "DebugTools AI",
-  "description": "AI agent support package for DebugTools MCP method invocation, Hotswap, and Spring config workflows",
+  "description": "One DebugTools workflow skill for Java connection, startup/reload, invocation/results, HTTP, deployment, Spring and runtime diagnosis.",
   "version": "0.1.0",
   "author": {
     "name": "DebugTools"

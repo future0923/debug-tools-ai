@@ -4,6 +4,11 @@ Use this reference after a DebugTools MCP call fails or returns an unexpected re
 
 ## No Active Connection
 
+Before retrying any invocation, check whether a prior invocation ID exists or execution
+is uncertain. If so, recover that original result; do not execute the method again.
+The discovery/retry steps below apply only when the original method was not sent.
+
+
 Symptoms:
 
 - `No active DebugTools connection found`

@@ -1,6 +1,6 @@
 # 端到端示例
 
-这些示例描述 DebugTools 方法调用或 Hotswap skill 生效时，AI 应该如何行动。
+这些示例描述 统一 DebugTools skill 生效时，AI 应该如何行动。
 
 ## 无参方法
 

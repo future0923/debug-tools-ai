@@ -1,35 +1,30 @@
-# DebugTools AI for Claude Code
+# DebugTools AI workflow
 
-When the user asks to use DebugTools, inspect status, invoke Java methods, attach JVMs, generate DebugTools method parameters, list run configurations, start a run configuration with DebugTools Hotswap, reload code, inspect logs/SQL, or read Spring runtime configuration keys, follow `docs/workflow.md`.
+Load `skills/debug-tools/SKILL.md` (`$debug-tools`) for any DebugTools task. This is
+one skill across connection, run/reload, method invocation/results, HTTP, deployment,
+Spring, runtime diagnosis, logs/SQL and Kubernetes. Read only needed skill references.
+Repository workflow reference: `docs/workflow.md`.
 
-Method invocation flow:
+Use `get_debug_tools_status` / `list_debug_tools_connections` to choose the application
+project and target. Reuse its connection; with no suitable JVM use
+`list_attachable_jvms` then `attach_local_jvm`. Startup is within the user's requested
+scope only; discover exact configurations with `list_debug_tools_run_configurations`
+and use `execute_debug_tools_run_configuration` when appropriate. Rediscover a
+connection after startup and wait for Spring readiness before a Spring-dependent call.
 
-1. `get_debug_tools_status` when a complete target snapshot is useful, otherwise `list_debug_tools_connections`
-2. `list_attachable_jvms` if no suitable connection exists
-3. `attach_local_jvm`
-4. `generate_method_args_template` for parameterized methods
-5. `invoke_java_method` (use `resultView=JSON|DEBUG|NONE` only when requested)
+For changed code use `compile_and_reload_modified_files`, retain operationId and
+confirm completion with `get_hotswap_operation`. Then prepare args with
+`generate_method_args_template` when needed and call `invoke_java_method` once.
+`run_and_invoke` can compose reload → invoke → evidence. Keep projectPath,
+connectionId, agentInstanceId and returned handles fixed. Timeout recovery retrieves
+the original result; never repeat a business action merely to obtain output.
 
-After fresh attach or Hotswap startup, call direct DebugTools HTTP `GET /spring/ready` before invoking Spring-like Controller/Service/Bean methods. Use only the selected MCP connection `host` and `httpPort`; poll `STARTING` with `retryable=true`, stop on `retryable=false`, and do not guess localhost/default ports.
-
-Preserve generated parameter names and method declaration order. Do not wrap `argsJson` in `targetMethodContent`.
-
-Hotswap flow:
-
-1. `list_debug_tools_run_configurations` if the run configuration name is unknown or ambiguous
-2. `execute_debug_tools_run_configuration`
-3. `compile_and_reload_modified_files` when recent Java changes need IDEA Java Debugger HotSwap reload
-4. `get_hotswap_operation` when a reload returns an `operationId` or times out
-
-Treat Hotswap `success=true` as "startup was requested", not as proof that DebugTools is connected.
-
-Spring config flow:
-
-1. Ask for config keys if the user did not provide any
-2. `list_debug_tools_connections`
-3. Attach with `list_attachable_jvms` and `attach_local_jvm` if no suitable connection exists
-4. Use selected connection `host` and `httpPort` for `POST /spring/config` with a JSON string array body
-
-Report returned values as Spring runtime Environment resolved values, not as direct file reads.
-
-Use `run_and_invoke` for the complete reload → invoke → optional logs/SQL loop. It may start only with an exact `runConfigurationName` and `allowStart=true`, or attach only with an explicit `pid` and `allowAttach=true`.
+Only use tools in the current catalog. No shell process/port discovery as an MCP
+substitute. Direct HTTP companions require MCP-selected host/httpPort. Older Spring
+config uses `POST /spring/config` with a JSON string array; readiness uses
+`GET /spring/ready`, retryable=true means bounded polling, retryable=false stops.
+Current MCP provides the preferred Spring config/readiness tools. Preserve generated
+RunContentDTO keys/order, choose ambiguous loaders explicitly, and report truncation,
+unknown states and incomplete cleanup. Stop/release only sessions created for the
+request; keep pre-existing sessions in place. Agent/pod/container replacement ends
+old-handle recovery even when endpoint names match.

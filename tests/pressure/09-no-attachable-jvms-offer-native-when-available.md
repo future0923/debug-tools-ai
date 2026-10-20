@@ -8,7 +8,7 @@ The user says:
 Use DebugTools to call com.demo.UserController.getUser. If the app is not running, ask me how to start it.
 ```
 
-The `debug-tools-method-invocation` skill is available.
+The `debug-tools` skill is available.
 
 Assume `list_debug_tools_connections` returns no active connections:
 

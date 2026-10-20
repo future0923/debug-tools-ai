@@ -1,6 +1,6 @@
 # End-to-End Examples
 
-These examples show the expected AI behavior when the DebugTools method invocation or Hotswap skills are active.
+These examples show the expected AI behavior when the unified DebugTools skill is active.
 
 ## No-Arg Method
 
@@ -87,7 +87,7 @@ AI:
 5. If multiple loaders match, ask the user to choose.
 ```
 
-Key point: ClassLoader discovery is direct DebugTools agent HTTP, not an MCP tool.
+Key point: this example demonstrates the older-plugin HTTP fallback. Prefer `find_class_loaders` when actually exposed.
 
 ## Hotswap Run Configuration
 

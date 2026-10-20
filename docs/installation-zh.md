@@ -1,6 +1,6 @@
 # 安装
 
-DebugTools AI 的安装器会把 Agent 指令、三个 Skills 和对应的插件元数据复制到本地配置目录。它不会安装 IntelliJ IDEA、DebugTools 插件、DebugTools agent 或 MCP Server。
+DebugTools AI 的安装器会把 Agent 指令、一个统一 Skill 和对应的插件元数据复制到本地配置目录。它不会安装 IntelliJ IDEA、DebugTools 插件、DebugTools agent 或 MCP Server。
 
 ## 安装前准备
 
@@ -71,18 +71,16 @@ bash install.sh --help
 
 ### Codex
 
-`--codex` 安装三个 Skills，并复制 Codex 插件元数据：
+`--codex` 安装一个统一 Skill，并复制 Codex 插件元数据：
 
 ```text
-~/.codex/skills/debug-tools-method-invocation/
-~/.codex/skills/debug-tools-hotswap/
-~/.codex/skills/debug-tools-spring-config/
+~/.codex/skills/debug-tools/
 ~/.codex/plugins/debug-tools-ai/
 ```
 
 ### Claude Code
 
-`--claude` 安装 `CLAUDE.md`、三个 Skills 和 Claude Code 插件元数据：
+`--claude` 安装 `CLAUDE.md`、一个统一 Skill 和 Claude Code 插件元数据：
 
 ```text
 ~/.claude/debug-tools-ai/
@@ -91,7 +89,7 @@ bash install.sh --help
 
 ### Gemini
 
-`--gemini` 安装 `GEMINI.md`、扩展元数据和三个 Skills：
+`--gemini` 安装 `GEMINI.md`、扩展元数据和一个统一 Skill：
 
 ```text
 ~/.gemini/extensions/debug-tools-ai/
@@ -99,7 +97,7 @@ bash install.sh --help
 
 ### OpenCode
 
-`--opencode` 安装 `AGENTS.md`、三个 Skills 和用于注册 Skill 路径的 OpenCode 插件：
+`--opencode` 安装 `AGENTS.md`、一个统一 Skill 和用于注册 Skill 路径的 OpenCode 插件：
 
 ```text
 ~/.config/opencode/debug-tools-ai/
@@ -108,7 +106,7 @@ bash install.sh --help
 
 ### Cursor
 
-`--cursor` 安装 `AGENTS.md`、三个 Skills 和 Cursor 插件元数据：
+`--cursor` 安装 `AGENTS.md`、一个统一 Skill 和 Cursor 插件元数据：
 
 ```text
 ~/.cursor/debug-tools-ai/
@@ -117,7 +115,7 @@ bash install.sh --help
 
 ### Kimi
 
-`--kimi` 安装 `AGENTS.md`、三个 Skills 和 Kimi 插件元数据：
+`--kimi` 安装 `AGENTS.md`、一个统一 Skill 和 Kimi 插件元数据：
 
 ```text
 ~/.kimi/debug-tools-ai/
@@ -134,7 +132,7 @@ bash install.sh --help
 
 ### 其他 Agent
 
-没有专用参数的 Agent，可以读取仓库根目录的 `AGENTS.md`，并按该 Agent 支持的方式导入 `skills/` 下的三个 Skills。是否能自动发现 Skills，取决于对应 Agent 的扩展机制。
+没有专用参数的 Agent，按宿主支持的方式加载 `skills/debug-tools/SKILL.md`。`CLAUDE.md` 提供通用运行时说明；安装器在需要时将它复制为宿主的 `AGENTS.md`。仓库根目录 `AGENTS.md` 用于维护本项目。是否能自动发现 Skill，取决于宿主扩展机制。
 
 ## 更新
 
@@ -182,3 +180,16 @@ curl -fsSL https://raw.githubusercontent.com/future0923/debug-tools-ai/main/scri
 ### 必须在提问中写“DebugTools”吗
 
 不需要。安装后可以直接说“调用这个 Java 方法”“用 Hotswap 启动这个配置”或“读取 Spring 运行时配置”。当上下文中有多套相似工具，或者你希望明确限定实现方式时，再说明“使用 DebugTools”。
+
+## 运行环境与 MCP 诊断
+
+`bash bin/debug-tools-ai doctor` 检查包版本、Node/Python 版本及已安装 Skill
+是否与当前源码一致。校验需要 Node.js 18+ 和 Python 3。未安装的可选适配器
+默认提示警告；`--strict-installed` 将缺失或内容过期视为失败。默认不联网探测。
+
+`doctor --mcp-url <明确的 Streamable HTTP MCP 地址>` 执行 MCP 初始化和
+分页 tools/list，不调用 Java 方法、不附着 JVM。需要 Bearer token 时通过
+`DEBUG_TOOLS_MCP_TOKEN` 环境变量提供；不会打印 token 或跟随重定向。
+本诊断暂不支持旧式仅 SSE 传输，可使用 AI 客户端自带的连接检查。
+
+Current workflow entry / 当前统一入口：`skills/debug-tools/SKILL.md`。详见 [工作流分组与迁移](workflow-groups.md)。

@@ -8,7 +8,7 @@ The user says:
 Start the demo app with DebugTools Hotswap.
 ```
 
-The `debug-tools-hotswap` skill is available. The run configuration name is not exact.
+The `debug-tools` skill is available. The run configuration name is not exact.
 
 Assume `list_debug_tools_run_configurations` returns:
 
@@ -49,7 +49,7 @@ If the user then chooses `DemoApplicationLocal`, the agent should call `execute_
 
 ## Pass Criteria
 
-- Uses the `debug-tools-hotswap` workflow.
+- Uses the `debug-tools` workflow.
 - Calls `list_debug_tools_run_configurations` before execution.
 - Presents the plausible exact names when more than one match remains.
 - Does not guess between `DemoApplication` and `DemoApplicationLocal`.

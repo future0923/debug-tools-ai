@@ -50,9 +50,7 @@ The Codex entrypoint is:
 The bundled skills are:
 
 ```text
-skills/debug-tools-method-invocation/SKILL.md
-skills/debug-tools-hotswap/SKILL.md
-skills/debug-tools-spring-config/SKILL.md
+skills/debug-tools/SKILL.md
 ```
 
 Local install:
@@ -85,11 +83,9 @@ After marketplace publication, install through the host marketplace command for 
 
 ## Generic Agents
 
-Use:
-
-```text
-AGENTS.md
-```
+Load `skills/debug-tools/SKILL.md` with the host's skill mechanism. `CLAUDE.md`
+contains the shared runtime context; installers also copy it as the host's
+`AGENTS.md` where needed. The repository root `AGENTS.md` is for maintainers.
 
 ## OpenCode
 
@@ -181,9 +177,7 @@ debug-tools-ai uninstall --all
 The uninstaller removes only paths owned by this package:
 
 ```text
-~/.codex/skills/debug-tools-method-invocation
-~/.codex/skills/debug-tools-hotswap
-~/.codex/skills/debug-tools-spring-config
+~/.codex/skills/debug-tools/
 ~/.codex/plugins/debug-tools-ai
 ~/.claude/debug-tools-ai
 ~/.claude/plugins/debug-tools-ai
@@ -200,3 +194,18 @@ The uninstaller removes only paths owned by this package:
 ## Notes
 
 This package assumes DebugTools MCP tools are available from the IntelliJ plugin. The AI instructions do not install or run the DebugTools agent by themselves.
+
+## Runtime and MCP diagnostics
+
+`bash bin/debug-tools-ai doctor` checks package/runtime versions and installed skill
+content against this checkout. Node.js 18+ and Python 3 are required for validation.
+Missing optional adapters are warnings; `--strict-installed` treats missing or stale
+installed skills as failures. No network discovery runs by default.
+
+Use `doctor --mcp-url <explicit-Streamable-HTTP-endpoint>` to run MCP initialize
+and paged tools/list. This does not invoke Java methods or attach JVMs. If the
+endpoint requires a bearer token, supply `DEBUG_TOOLS_MCP_TOKEN` in the environment.
+Tokens are not printed and redirects are not followed. Legacy SSE-only transports
+are not supported by this doctor; use the client's native connection check.
+
+Current workflow entry / 当前统一入口：`skills/debug-tools/SKILL.md`。详见 [工作流分组与迁移](workflow-groups.md)。

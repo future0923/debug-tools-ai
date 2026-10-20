@@ -1,15 +1,11 @@
----
-name: debug-tools-hotswap
-description: Use when operating DebugTools IntelliJ MCP Hotswap tools to list or start IntelliJ run configurations, compile and reload modified classes, query HotSwap operations, or run the reload → invoke loop; includes list_debug_tools_run_configurations, execute_debug_tools_run_configuration, compile_and_reload_modified_files, get_hotswap_operation, and run_and_invoke.
----
 
 # DebugTools Hotswap
 
-Use DebugTools Hotswap tools to start IntelliJ run configurations through the DebugTools Hotswap executor, trigger IDEA Java Debugger Compile and Reload Modified Files, query pending operations, and orchestrate a reload → invoke loop. If the user later asks for standalone connection discovery, attach, or argument preparation, use the `debug-tools-method-invocation` skill.
+Use DebugTools Hotswap tools to start IntelliJ run configurations through the DebugTools Hotswap executor, trigger IDEA Java Debugger Compile and Reload Modified Files, query pending operations, and orchestrate a reload → invoke loop. If the user later asks for standalone connection discovery, attach, or argument preparation, continue with [method invocation](invocation.md).
 
 ## Toolset
 
-These tools are exposed under `DebugToolsHotswapToolset`:
+Run and reload tools include the following; `run_and_invoke` belongs to the invocation workflow and composes reload when requested:
 
 - `list_debug_tools_run_configurations`
 - `execute_debug_tools_run_configuration`
@@ -19,7 +15,7 @@ These tools are exposed under `DebugToolsHotswapToolset`:
 
 ## Missing Tool Failure
 
-If this skill is selected but the current Codex tool context does not expose the DebugTools Hotswap MCP tools, stop immediately and report a configuration error. Do not inspect IDE files, run shell process discovery, launch applications directly, or use ordinary Java/Maven/Gradle commands as fallbacks.
+If a requested startup or reload step requires a tool missing from the current MCP catalog, stop that dependent step and report the missing capability. Do not require unrelated tools for a standalone request. Do not inspect IDE files, run shell process discovery, launch applications directly, or use ordinary Java/Maven/Gradle commands as fallbacks.
 
 Tell the user to check that the IDEA MCP server is available and that the DebugTools IDEA plugin registers the tools listed above.
 
@@ -28,7 +24,7 @@ Tell the user to check that the IDEA MCP server is available and that the DebugT
 - If the user gives an exact run configuration name, call `execute_debug_tools_run_configuration` with that `configurationName`.
 - If the configuration name is missing, partial, or ambiguous, call `list_debug_tools_run_configurations` first. When module, main class, or type is known, pass `moduleName`, `mainClassNameContains`, or `typeDisplayName` filters.
 - Match `configurationName` exactly from the list result before executing. Ask the user to choose when more than one configuration remains plausible.
-- Do not call Java method invocation tools before Hotswap launch unless the user explicitly asks for connection inspection, attach, args template generation, or method invocation.
+- A standalone startup request ends after reporting its actual startup state. A combined user-requested workflow continues through shared connection discovery and invocation steps; do not invoke a method merely to verify startup.
 - Treat `execute_debug_tools_run_configuration.success=true` as "startup was requested", not as proof that the JVM is running or DebugTools is connected.
 - Use the returned `nextAction` and `requiresManualAttach` fields to decide the next workflow step. If `requiresManualAttach=true` or `autoAttachEnabled=false`, do not assume DebugTools will attach automatically after launch. Tell the user auto attach is disabled when it matters.
 - If execution fails because the configuration is missing, use `availableConfigurationNames` to help the user choose a valid configuration.
@@ -61,11 +57,11 @@ Tell the user to check that the IDEA MCP server is available and that the DebugT
    - `nextAction=LIST_DEBUG_TOOLS_CONNECTIONS`: connection discovery should be retried before invoking.
    - `nextAction=LIST_ATTACHABLE_JVMS`: enumerate attachable JVMs and attach if the broader workflow already authorized startup/invocation.
    - `requiresManualAttach=true` or `autoAttachEnabled=false`: do not claim that DebugTools will auto attach.
-7. For follow-up connection or method calls, switch to `debug-tools-method-invocation`.
+7. For follow-up connection or method calls already included in the request, continue with [invocation](invocation.md) in this same skill.
 
 ## Compile And Reload Pattern
 
-Call `compile_and_reload_modified_files` whenever the task needs IDEA to compile and HotSwap recent changes into an attached Java debugger session, such as after editing Java code and needing live verification. This mirrors IDEA Java Debugger's Compile and Reload Modified Files action. The changed-file set is IDEA's HotSwap increment since session start or the previous reload, not the git/VCS dirty set. Treat `success=true` as a submitted request; compile and HotSwap progress or failures remain in IDEA's native UI/notifications. Use `get_hotswap_operation` for a returned `operationId`.
+Call `compile_and_reload_modified_files` whenever the task needs IDEA to compile and HotSwap recent changes into an attached Java debugger session, such as after editing Java code and needing live verification. This mirrors IDEA Java Debugger's Compile and Reload Modified Files action. The changed-file set is IDEA's HotSwap increment since session start or the previous reload, not the git/VCS dirty set. Do not infer completion from `success=true` alone: inspect `status`, and query a returned `operationId` with `get_hotswap_operation` until its documented terminal state. IDEA also reports compile and HotSwap progress or failures through native UI/notifications.
 
 ## Closed-Loop Pattern
 
@@ -113,3 +109,11 @@ When the user asks to reload code and immediately exercise it, use `run_and_invo
 - `availableConfigurationNames`
 
 `get_hotswap_operation` accepts `operationId` and returns the latest reload status. `run_and_invoke` accepts `className`, `methodName`, `resultView`, `waitMillis`, `allowStart`, `runConfigurationName`, `allowAttach`, `pid`, `verifyLogs`, and `verifySql` in addition to method invocation fields.
+
+## Completion contract
+
+For reload-dependent invocation, wait for `status=SUCCESS` from the same project and `operationId`. `REQUESTED`, `COMPILING`, `RELOADING`, and `TIMEOUT` do not permit invocation. Use `get_hotswap_operation` to continue observing; do not submit a duplicate reload. An older plugin exposing only request submission cannot prove completion. Empty per-class details mean unavailable detail, not that zero classes changed. `run_and_invoke` keeps one target connection and requires a successful reload before invoking. Log/SQL evidence failures are distinct from invocation failure.
+
+## Additional runtime tools
+
+When actually exposed, use `inspect_spring_beans` and `explain_spring_config` for context/bean metadata and property precedence. For related deployment, run lifecycle, Kubernetes, or result comparisons requested by the user, continue with [extended workflows](extended-workflows.md) in this same skill. Do not infer these capabilities from the plugin version alone.

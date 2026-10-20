@@ -10,9 +10,7 @@ cat <<EOF
 
 - Date: $date_utc
 - Skills:
-  - skills/debug-tools-method-invocation/SKILL.md
-  - skills/debug-tools-hotswap/SKILL.md
-  - skills/debug-tools-spring-config/SKILL.md
+  - skills/debug-tools/SKILL.md
 - Runner:
 - Agent/runtime:
 

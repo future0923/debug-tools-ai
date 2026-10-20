@@ -65,43 +65,14 @@ debug-tools-ai installation finished
 
 DebugTools AI 只安装 Agent 指令、Skills 和插件元数据，不会安装 IntelliJ IDEA、DebugTools 插件、DebugTools agent 或 MCP Server。
 
-## 三个 Skill
+## 一个统一 Skill
 
-### 方法调用
+`debug-tools` 根据任务串联连接、启动/就绪、热重载、方法调用、原结果恢复、证据收集和清理。
+结果、流、快照与调用诊断属于方法调用，不单独拆成 skill。详细步骤按需加载 references。
 
-`debug-tools-method-invocation` 用于查找 DebugTools 连接、附着本地 JVM、生成方法参数并调用 Java 方法。
+- [DebugTools unified workflow skill](skills/debug-tools/SKILL.md)
+- [九个工作流分组及迁移](docs/workflow-groups.md)
 
-适合这类需求：
-
-- “调用 `UserService.findById`，参数是 1001。”
-- “附着到正在运行的 demo 服务，再执行这个 Controller 方法。”
-- “这个方法有重载，帮我调用接收 `Long` 的版本。”
-
-特殊注意：存在多个 JVM、连接、重载方法或 ClassLoader 时，Agent 会结合上下文选择；无法可靠判断时会先让你确认。复杂参数会先按方法签名生成模板，避免直接猜测参数结构。
-
-现在还可以使用状态聚合、HTTP 地址搜索、目标日志和 SQL 查询，以及 `run_and_invoke` 完成“状态 → 热重载 → 调用 → 日志/SQL”闭环。方法调用支持 `resultView=TO_STRING|JSON|DEBUG|NONE`，结果获取失败会单独返回，不会覆盖方法调用本身的成功状态。
-
-### Hotswap
-
-`debug-tools-hotswap` 用于查找 IntelliJ Run Configuration、通过 DebugTools Hotswap 启动应用，以及编译并重新加载调试会话中的已修改类。
-
-适合这类需求：
-
-- “用 Hotswap 启动 `DemoApplication`。”
-- “把刚修改的 Java 类编译并热更新到当前调试进程。”
-
-特殊注意：启动请求成功不等于 DebugTools 已经连接完成。后续还要调用方法时，Agent 会重新确认连接；运行配置不明确时会先列出候选项。`run_and_invoke` 只有在明确提供运行配置名或 PID 并开启对应 `allowStart`/`allowAttach` 时才会启动或附着。
-
-### Spring 配置
-
-`debug-tools-spring-config` 用于读取目标 JVM 中 Spring `Environment` 的运行时配置值。
-
-适合这类需求：
-
-- “读取 `server.port`。”
-- “看看当前环境实际生效的 Redis 地址和 active profile。”
-
-特殊注意：这里读取的是 Spring 运行时解析后的值，不是直接读取 `application.yml` 或 `application.properties`。因此结果会包含 profile、环境变量、启动参数等配置源覆盖后的最终值。
 
 ## 安装、更新与卸载
 
@@ -176,9 +147,6 @@ Agent：run_and_invoke（必要时显式传 allowStart/runConfigurationName 或 
 
 - [工作流](docs/workflow.md)
 - [工具契约](docs/tool-contracts.md)
-- [方法调用 Skill](skills/debug-tools-method-invocation/SKILL.md)
-- [Hotswap Skill](skills/debug-tools-hotswap/SKILL.md)
-- [Spring 配置 Skill](skills/debug-tools-spring-config/SKILL.md)
 - [压力测试场景](tests/pressure)
 
 ## 校验
@@ -193,3 +161,20 @@ bash scripts/validate.sh
 
 - [贡献说明](CONTRIBUTING.md)
 - [发布流程](docs/release.md)
+
+## Runtime diagnostics / 运行时诊断
+
+统一 `debug-tools` skill 按需处理超时恢复、对象与流读取、慢调用分析、方法观察及异步关联，
+并与连接、调用和清理保持同一条工作流。Pi 直接使用 `/debug-tools <请求>`。
+
+- [使用指南](docs/runtime-diagnostics.md)
+- [回归结果与待验证项](docs/runtime-regression-2026-10-14.md)
+
+## Workspace verification / 三仓库验收
+
+Run `bash bin/debug-tools-ai verify-workspace` to rebuild the agent, sync the
+embedded jar, run the five-JDK matrix and IDEA checks, compare exported contracts,
+and verify the final plugin. See [统一验收命令](docs/workspace-verification.md) and
+[实机验收步骤](docs/live-acceptance.md) for requirements and remaining environment checks.
+
+Current workflow entry / 当前统一入口：`skills/debug-tools/SKILL.md`。详见 [工作流分组与迁移](docs/workflow-groups.md)。

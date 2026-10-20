@@ -1,0 +1,4 @@
+interface:
+  display_name: "DebugTools"
+  short_description: "Connect, reload, invoke and diagnose Java in one workflow"
+  default_prompt: "Use $debug-tools to complete this Java debugging workflow, preserving target identity and recovering existing operations without repeating business actions."

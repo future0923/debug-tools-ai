@@ -35,7 +35,7 @@ bootstrap_from_remote() {
   exit "$status"
 }
 
-if [[ ! -d "$ROOT/skills/debug-tools-method-invocation" ]]; then
+if [[ ! -d "$ROOT/skills/debug-tools" ]]; then
   bootstrap_from_remote "$@"
 fi
 
@@ -77,6 +77,25 @@ copy_dir() {
   cp -R "$source"/. "$target"/
 }
 
+# Back up package-owned legacy skills outside discovery paths; refuse foreign folders.
+copy_skills() {
+  local target="$1"
+  local legacy
+  local backup
+  for legacy in debug-tools-method-invocation debug-tools-hotswap debug-tools-spring-config debug-tools-runtime-diagnostics; do
+    if [[ -e "$target/$legacy" ]]; then
+      if [[ ! -f "$target/$legacy/SKILL.md" ]] || ! grep -q "^name: $legacy$" "$target/$legacy/SKILL.md"; then
+        echo "Refusing to replace unrecognized legacy skill: $target/$legacy" >&2
+        return 1
+      fi
+      backup="$HOME_DIR/.local/share/debug-tools-ai/skill-backups/$(date +%Y%m%d-%H%M%S)-$$/${target#"$HOME_DIR/"}/$legacy"
+      mkdir -p "$(dirname "$backup")"
+      mv "$target/$legacy" "$backup"
+    fi
+  done
+  copy_dir "$ROOT/skills" "$target"
+}
+
 copy_file() {
   local source="$1"
   local target="$2"
@@ -89,7 +108,7 @@ copy_package() {
   mkdir -p "$target"
   copy_file "$ROOT/README.md" "$target/README.md"
   copy_file "$ROOT/LICENSE" "$target/LICENSE"
-  copy_file "$ROOT/AGENTS.md" "$target/AGENTS.md"
+  copy_file "$ROOT/CLAUDE.md" "$target/AGENTS.md"
   copy_file "$ROOT/CLAUDE.md" "$target/CLAUDE.md"
   copy_file "$ROOT/GEMINI.md" "$target/GEMINI.md"
   copy_file "$ROOT/gemini-extension.json" "$target/gemini-extension.json"
@@ -99,7 +118,7 @@ copy_package() {
   copy_dir "$ROOT/docs" "$target/docs"
   copy_dir "$ROOT/scripts" "$target/scripts"
   copy_dir "$ROOT/tests" "$target/tests"
-  copy_dir "$ROOT/skills" "$target/skills"
+  copy_skills "$target/skills"
   copy_dir "$ROOT/.codex-plugin" "$target/.codex-plugin"
   copy_dir "$ROOT/.claude-plugin" "$target/.claude-plugin"
   copy_dir "$ROOT/.cursor-plugin" "$target/.cursor-plugin"
@@ -145,44 +164,44 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ "$install_codex" == true ]]; then
-  copy_dir "$ROOT/skills" "$HOME_DIR/.codex/skills"
+  copy_skills "$HOME_DIR/.codex/skills"
   copy_dir "$ROOT/.codex-plugin" "$HOME_DIR/.codex/plugins/debug-tools-ai/.codex-plugin"
-  copy_dir "$ROOT/skills" "$HOME_DIR/.codex/plugins/debug-tools-ai/skills"
+  copy_skills "$HOME_DIR/.codex/plugins/debug-tools-ai/skills"
   echo "Installed Codex files"
 fi
 
 if [[ "$install_claude" == true ]]; then
   copy_file "$ROOT/CLAUDE.md" "$HOME_DIR/.claude/debug-tools-ai/CLAUDE.md"
   copy_dir "$ROOT/.claude-plugin" "$HOME_DIR/.claude/plugins/debug-tools-ai/.claude-plugin"
-  copy_dir "$ROOT/skills" "$HOME_DIR/.claude/plugins/debug-tools-ai/skills"
+  copy_skills "$HOME_DIR/.claude/plugins/debug-tools-ai/skills"
   echo "Installed Claude Code files"
 fi
 
 if [[ "$install_gemini" == true ]]; then
   copy_file "$ROOT/GEMINI.md" "$HOME_DIR/.gemini/extensions/debug-tools-ai/GEMINI.md"
   copy_file "$ROOT/gemini-extension.json" "$HOME_DIR/.gemini/extensions/debug-tools-ai/gemini-extension.json"
-  copy_dir "$ROOT/skills" "$HOME_DIR/.gemini/extensions/debug-tools-ai/skills"
+  copy_skills "$HOME_DIR/.gemini/extensions/debug-tools-ai/skills"
   echo "Installed Gemini files"
 fi
 
 if [[ "$install_opencode" == true ]]; then
-  copy_file "$ROOT/AGENTS.md" "$HOME_DIR/.config/opencode/debug-tools-ai/AGENTS.md"
+  copy_file "$ROOT/CLAUDE.md" "$HOME_DIR/.config/opencode/debug-tools-ai/AGENTS.md"
   copy_dir "$ROOT/.opencode/plugins" "$HOME_DIR/.config/opencode/plugins"
-  copy_dir "$ROOT/skills" "$HOME_DIR/.config/opencode/debug-tools-ai/skills"
+  copy_skills "$HOME_DIR/.config/opencode/debug-tools-ai/skills"
   echo "Installed OpenCode files"
 fi
 
 if [[ "$install_cursor" == true ]]; then
-  copy_file "$ROOT/AGENTS.md" "$HOME_DIR/.cursor/debug-tools-ai/AGENTS.md"
+  copy_file "$ROOT/CLAUDE.md" "$HOME_DIR/.cursor/debug-tools-ai/AGENTS.md"
   copy_dir "$ROOT/.cursor-plugin" "$HOME_DIR/.cursor/plugins/debug-tools-ai/.cursor-plugin"
-  copy_dir "$ROOT/skills" "$HOME_DIR/.cursor/plugins/debug-tools-ai/skills"
+  copy_skills "$HOME_DIR/.cursor/plugins/debug-tools-ai/skills"
   echo "Installed Cursor files"
 fi
 
 if [[ "$install_kimi" == true ]]; then
-  copy_file "$ROOT/AGENTS.md" "$HOME_DIR/.kimi/debug-tools-ai/AGENTS.md"
+  copy_file "$ROOT/CLAUDE.md" "$HOME_DIR/.kimi/debug-tools-ai/AGENTS.md"
   copy_dir "$ROOT/.kimi-plugin" "$HOME_DIR/.kimi/plugins/debug-tools-ai/.kimi-plugin"
-  copy_dir "$ROOT/skills" "$HOME_DIR/.kimi/plugins/debug-tools-ai/skills"
+  copy_skills "$HOME_DIR/.kimi/plugins/debug-tools-ai/skills"
   echo "Installed Kimi files"
 fi
 

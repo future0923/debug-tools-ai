@@ -1,0 +1,5898 @@
+{
+  "contractVersion": 1,
+  "tools": [
+    {
+      "name": "aggregate_sql_statements",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.aggregate_sql_statements",
+      "workflow": {
+        "id": "LOGS_AND_SQL",
+        "name": "DebugToolsLogsAndSqlToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsLogsAndSqlToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "since": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "TOTAL",
+              "MAX",
+              "COUNT"
+            ],
+            "default": "TOTAL"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "attach_local_jvm",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.attach_local_jvm",
+      "workflow": {
+        "id": "CONNECTIONS",
+        "name": "DebugToolsConnectionsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsConnectionsToolset"
+      },
+      "outputSchema": {
+        "anyOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "description": "Legacy tool-specific JSON object or MCP error text; use documented per-tool fields. No standardized envelope."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "pid": {
+            "type": "string",
+            "description": "Local JVM process id selected from list_attachable_jvms."
+          },
+          "attachName": {
+            "type": "string",
+            "description": "Optional application name used for attach. Usually omit attachName; DebugTools resolves it from list_attachable_jvms by pid."
+          },
+          "waitForConnectionMillis": {
+            "type": "integer",
+            "description": "Optional time in milliseconds to wait for the DebugTools connection after attach. When a connection appears, the result includes connectionId, host, port, and httpPort."
+          }
+        },
+        "required": [
+          "pid"
+        ]
+      }
+    },
+    {
+      "name": "build_controller_http_request",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.build_controller_http_request",
+      "workflow": {
+        "id": "HTTP",
+        "name": "DebugToolsHttpToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHttpToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "request": {
+                    "type": "object"
+                  },
+                  "curl": {
+                    "type": "string"
+                  },
+                  "executed": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "request",
+                  "curl",
+                  "executed"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp",
+              "data"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "className": {
+            "type": "string"
+          },
+          "methodName": {
+            "type": "string"
+          },
+          "parameterTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "baseUrl": {
+            "type": "string"
+          },
+          "path": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "query": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 1048576
+          },
+          "bodyMode": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "JSON",
+              "TEXT",
+              "XML"
+            ],
+            "default": "NONE"
+          }
+        },
+        "required": [
+          "baseUrl",
+          "className",
+          "methodName"
+        ]
+      }
+    },
+    {
+      "name": "cancel_invocation_stream",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.cancel_invocation_stream",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "invocationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "invocationId"
+        ]
+      }
+    },
+    {
+      "name": "capture_result_snapshot",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.capture_result_snapshot",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "offsetPath": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "maxDepth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "default": 5
+          },
+          "maxNodes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2000,
+            "default": 1000
+          }
+        },
+        "required": [
+          "offsetPath"
+        ]
+      }
+    },
+    {
+      "name": "compare_result_snapshots",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.compare_result_snapshots",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "beforeSnapshotId": {
+            "type": "string"
+          },
+          "afterSnapshotId": {
+            "type": "string"
+          },
+          "ignorePaths": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          },
+          "allowDifferentTargets": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "afterSnapshotId",
+          "beforeSnapshotId"
+        ]
+      }
+    },
+    {
+      "name": "compile_and_deploy_java",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.compile_and_deploy_java",
+      "workflow": {
+        "id": "SCRIPTS_AND_DEPLOYMENT",
+        "name": "DebugToolsScriptsAndDeploymentToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsScriptsAndDeploymentToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "operationId": {
+                    "type": "string"
+                  },
+                  "agentInstanceId": {
+                    "type": "string"
+                  },
+                  "connectionId": {
+                    "type": "string"
+                  },
+                  "operation": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "operationId",
+                  "agentInstanceId",
+                  "connectionId",
+                  "operation"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp",
+              "data"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "classLoaderIdentity": {
+            "type": "string"
+          },
+          "agentInstanceId": {
+            "type": "string"
+          },
+          "operationId": {
+            "type": "string",
+            "description": "Optional retained operation ID; never reuse with different input."
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "default": 0
+          },
+          "files": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 32,
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 1048576
+            }
+          },
+          "deploy": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "classLoaderIdentity",
+          "files"
+        ]
+      }
+    },
+    {
+      "name": "compile_and_reload_modified_files",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHotswapToolset.compile_and_reload_modified_files",
+      "workflow": {
+        "id": "RUN_AND_HOTSWAP",
+        "name": "DebugToolsHotswapToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHotswapToolset"
+      },
+      "outputSchema": {
+        "anyOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "description": "Legacy tool-specific JSON object or MCP error text; use documented per-tool fields. No standardized envelope."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "sessionName": {
+            "type": "string",
+            "description": "Optional Java debugger session name. Required when multiple attached Java debugger sessions can hotswap."
+          },
+          "compileBeforeReload": {
+            "type": "boolean",
+            "description": "Whether IDEA should compile its Java Debugger HotSwap changed files/classes before reloading them. The changed set is tracked by IDEA since debugger session start or the previous reload, not by VCS/git. Defaults to the current Java Debugger setting."
+          },
+          "waitMillis": {
+            "type": "integer",
+            "description": "Maximum time to wait for the IDEA hotswap request."
+          },
+          "operationId": {
+            "type": "string",
+            "description": "Reserved operation id for asynchronous hotswap status queries."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "deploy_class_files",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.deploy_class_files",
+      "workflow": {
+        "id": "SCRIPTS_AND_DEPLOYMENT",
+        "name": "DebugToolsScriptsAndDeploymentToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsScriptsAndDeploymentToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "operationId": {
+                    "type": "string"
+                  },
+                  "agentInstanceId": {
+                    "type": "string"
+                  },
+                  "connectionId": {
+                    "type": "string"
+                  },
+                  "operation": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "operationId",
+                  "agentInstanceId",
+                  "connectionId",
+                  "operation"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp",
+              "data"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "classLoaderIdentity": {
+            "type": "string"
+          },
+          "agentInstanceId": {
+            "type": "string"
+          },
+          "operationId": {
+            "type": "string",
+            "description": "Optional retained operation ID; never reuse with different input."
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "default": 0
+          },
+          "files": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 32,
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 1048576
+            }
+          }
+        },
+        "required": [
+          "classLoaderIdentity",
+          "files"
+        ]
+      }
+    },
+    {
+      "name": "deploy_resources",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.deploy_resources",
+      "workflow": {
+        "id": "SCRIPTS_AND_DEPLOYMENT",
+        "name": "DebugToolsScriptsAndDeploymentToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsScriptsAndDeploymentToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "operationId": {
+                    "type": "string"
+                  },
+                  "agentInstanceId": {
+                    "type": "string"
+                  },
+                  "connectionId": {
+                    "type": "string"
+                  },
+                  "operation": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "operationId",
+                  "agentInstanceId",
+                  "connectionId",
+                  "operation"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp",
+              "data"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "classLoaderIdentity": {
+            "type": "string"
+          },
+          "agentInstanceId": {
+            "type": "string"
+          },
+          "operationId": {
+            "type": "string",
+            "description": "Optional retained operation ID; never reuse with different input."
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "default": 0
+          },
+          "files": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 32,
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 1048576
+            }
+          }
+        },
+        "required": [
+          "classLoaderIdentity",
+          "files"
+        ]
+      }
+    },
+    {
+      "name": "diagnose_invocation",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.diagnose_invocation",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "invocationId": {
+            "type": "string"
+          },
+          "maxDepth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 128,
+            "default": 32
+          }
+        },
+        "required": [
+          "invocationId"
+        ]
+      }
+    },
+    {
+      "name": "discover_kubernetes_targets",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.discover_kubernetes_targets",
+      "workflow": {
+        "id": "KUBERNETES",
+        "name": "DebugToolsKubernetesToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsKubernetesToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "CONTEXTS",
+              "NAMESPACES",
+              "PODS",
+              "DEPLOYMENTS",
+              "JVMS"
+            ],
+            "default": "CONTEXTS"
+          },
+          "context": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "pod": {
+            "type": "string"
+          },
+          "container": {
+            "type": "string"
+          },
+          "labelSelector": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "execute_debug_tools_run_configuration",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHotswapToolset.execute_debug_tools_run_configuration",
+      "workflow": {
+        "id": "RUN_AND_HOTSWAP",
+        "name": "DebugToolsHotswapToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHotswapToolset"
+      },
+      "outputSchema": {
+        "anyOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "description": "Legacy tool-specific JSON object or MCP error text; use documented per-tool fields. No standardized envelope."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "configurationName": {
+            "type": "string",
+            "description": "Name of the run configuration to start with DebugTools Hotswap executor."
+          }
+        },
+        "required": [
+          "configurationName"
+        ]
+      }
+    },
+    {
+      "name": "execute_groovy_script",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.execute_groovy_script",
+      "workflow": {
+        "id": "SCRIPTS_AND_DEPLOYMENT",
+        "name": "DebugToolsScriptsAndDeploymentToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsScriptsAndDeploymentToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "operationId": {
+                    "type": "string"
+                  },
+                  "agentInstanceId": {
+                    "type": "string"
+                  },
+                  "connectionId": {
+                    "type": "string"
+                  },
+                  "operation": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "operationId",
+                  "agentInstanceId",
+                  "connectionId",
+                  "operation"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp",
+              "data"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "classLoaderIdentity": {
+            "type": "string"
+          },
+          "agentInstanceId": {
+            "type": "string"
+          },
+          "operationId": {
+            "type": "string",
+            "description": "Optional retained operation ID; never reuse with different input."
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "default": 0
+          },
+          "script": {
+            "type": "string",
+            "maxLength": 262144
+          }
+        },
+        "required": [
+          "classLoaderIdentity",
+          "script"
+        ]
+      }
+    },
+    {
+      "name": "execute_http_request",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.execute_http_request",
+      "workflow": {
+        "id": "HTTP",
+        "name": "DebugToolsHttpToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHttpToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "httpStatus": {
+                    "type": "integer"
+                  },
+                  "truncated": {
+                    "type": "boolean"
+                  },
+                  "receivedBytes": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "httpStatus",
+                  "truncated",
+                  "receivedBytes"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp",
+              "data"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "url": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "HEAD",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE",
+              "OPTIONS",
+              "TRACE"
+            ]
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 1048576
+          },
+          "timeoutMillis": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120000,
+            "default": 30000
+          },
+          "maxResponseBytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1048576,
+            "default": 65536
+          }
+        },
+        "required": [
+          "method",
+          "url"
+        ]
+      }
+    },
+    {
+      "name": "explain_spring_config",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.explain_spring_config",
+      "workflow": {
+        "id": "SPRING",
+        "name": "DebugToolsSpringToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsSpringToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "classLoaderIdentity": {
+            "type": "string"
+          },
+          "contextId": {
+            "type": "string"
+          },
+          "keys": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "maxLength": 512
+            }
+          }
+        },
+        "required": [
+          "classLoaderIdentity",
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "find_class_loaders",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.find_class_loaders",
+      "workflow": {
+        "id": "RUNTIME_DIAGNOSTICS",
+        "name": "DebugToolsRuntimeDiagnosticsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsRuntimeDiagnosticsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "className": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000,
+            "default": 0
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "generate_method_args_template",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.generate_method_args_template",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "anyOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "description": "Legacy tool-specific JSON object or MCP error text; use documented per-tool fields. No standardized envelope."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "className": {
+            "type": "string",
+            "description": "Fully qualified Java class name that contains the target method."
+          },
+          "methodName": {
+            "type": "string",
+            "description": "Target method name."
+          },
+          "parameterTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Target method parameter type names in declaration order. Provide fully qualified type names when overloads exist."
+          },
+          "genParamType": {
+            "type": "string",
+            "description": "Optional DebugTools parameter template generation mode. Supported values are SIMPLE, CURRENT, and ALL. Omit to use the current DebugTools global default."
+          }
+        },
+        "required": [
+          "className",
+          "methodName"
+        ]
+      }
+    },
+    {
+      "name": "get_agent_capabilities",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.get_agent_capabilities",
+      "workflow": {
+        "id": "CONNECTIONS",
+        "name": "DebugToolsConnectionsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsConnectionsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "get_agent_operation",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.get_agent_operation",
+      "workflow": {
+        "id": "SCRIPTS_AND_DEPLOYMENT",
+        "name": "DebugToolsScriptsAndDeploymentToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsScriptsAndDeploymentToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "operationId": {
+            "type": "string"
+          },
+          "agentInstanceId": {
+            "type": "string"
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "default": 0
+          }
+        },
+        "required": [
+          "agentInstanceId",
+          "operationId"
+        ]
+      }
+    },
+    {
+      "name": "get_debug_tools_status",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.get_debug_tools_status",
+      "workflow": {
+        "id": "CONNECTIONS",
+        "name": "DebugToolsConnectionsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsConnectionsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "get_hotswap_operation",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHotswapToolset.get_hotswap_operation",
+      "workflow": {
+        "id": "RUN_AND_HOTSWAP",
+        "name": "DebugToolsHotswapToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHotswapToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "operationId": {
+            "type": "string",
+            "description": "HotSwap operation id returned by compile_and_reload_modified_files in this project."
+          }
+        },
+        "required": [
+          "operationId"
+        ]
+      }
+    },
+    {
+      "name": "get_invocation_result",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.get_invocation_result",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "invocationId": {
+            "type": "string"
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "default": 1000
+          }
+        },
+        "required": [
+          "invocationId"
+        ]
+      }
+    },
+    {
+      "name": "get_jvm_snapshot",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.get_jvm_snapshot",
+      "workflow": {
+        "id": "RUNTIME_DIAGNOSTICS",
+        "name": "DebugToolsRuntimeDiagnosticsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsRuntimeDiagnosticsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "get_last_sql_statements",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.get_last_sql_statements",
+      "workflow": {
+        "id": "LOGS_AND_SQL",
+        "name": "DebugToolsLogsAndSqlToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsLogsAndSqlToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "since": {
+            "type": "integer"
+          },
+          "keyword": {
+            "type": "string"
+          },
+          "invocationId": {
+            "type": "string"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "get_method_around_script",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.get_method_around_script",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "name": {
+            "type": "string",
+            "description": "Saved Method Around script name without the .java suffix. Use list_method_around_scripts first when the name is unknown."
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "name": "get_method_trace",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.get_method_trace",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "traceOffsetPath": {
+            "type": "string"
+          },
+          "maxDepth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+          },
+          "maxNodes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2000,
+            "default": 200
+          },
+          "minDurationMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "default": 0
+          },
+          "topN": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10
+          }
+        },
+        "required": [
+          "traceOffsetPath"
+        ]
+      }
+    },
+    {
+      "name": "get_spring_config",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.get_spring_config",
+      "workflow": {
+        "id": "SPRING",
+        "name": "DebugToolsSpringToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsSpringToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "keys": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string"
+            },
+            "description": "Exact Spring property keys."
+          }
+        },
+        "required": [
+          "keys"
+        ]
+      }
+    },
+    {
+      "name": "get_thread_snapshot",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.get_thread_snapshot",
+      "workflow": {
+        "id": "RUNTIME_DIAGNOSTICS",
+        "name": "DebugToolsRuntimeDiagnosticsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsRuntimeDiagnosticsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256,
+            "default": 50
+          },
+          "maxDepth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 128,
+            "default": 32
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "inspect_run_result",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.inspect_run_result",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "connectionId": {
+                    "type": "string"
+                  },
+                  "inspection": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "connectionId",
+                  "inspection"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp",
+              "data"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "offsetPath": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string",
+            "enum": [
+              "DEBUG",
+              "JSON",
+              "TO_STRING",
+              "CHILDREN"
+            ],
+            "default": "DEBUG"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000,
+            "default": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          },
+          "maxDepth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "default": 5
+          },
+          "maxNodes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2000,
+            "default": 1000
+          }
+        },
+        "required": [
+          "offsetPath"
+        ]
+      }
+    },
+    {
+      "name": "inspect_runtime_class",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.inspect_runtime_class",
+      "workflow": {
+        "id": "RUNTIME_DIAGNOSTICS",
+        "name": "DebugToolsRuntimeDiagnosticsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsRuntimeDiagnosticsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "className": {
+            "type": "string"
+          },
+          "nameContains": {
+            "type": "string",
+            "minLength": 3
+          },
+          "classLoaderIdentity": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "methodLimit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "inspect_spring_beans",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.inspect_spring_beans",
+      "workflow": {
+        "id": "SPRING",
+        "name": "DebugToolsSpringToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsSpringToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "classLoaderIdentity": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "CONTEXTS",
+              "BEANS"
+            ],
+            "default": "CONTEXTS"
+          },
+          "contextId": {
+            "type": "string"
+          },
+          "nameContains": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        "required": [
+          "classLoaderIdentity"
+        ]
+      }
+    },
+    {
+      "name": "invoke_java_method",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.invoke_java_method",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "anyOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "description": "Legacy tool-specific JSON object or MCP error text; use documented per-tool fields. No standardized envelope."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "agentInstanceId": {
+            "type": "string",
+            "description": "Optional expected agent instance ID. New agents enforce it before executing; target changes reject the invocation."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "DebugTools connection id. Omit when the project has exactly one active connection. When multiple active connections exist, connectionId is required to avoid invoking the wrong JVM."
+          },
+          "className": {
+            "type": "string",
+            "description": "Fully qualified target class name."
+          },
+          "methodName": {
+            "type": "string",
+            "description": "Target method name."
+          },
+          "parameterTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Target method parameter type names in declaration order. Provide fully qualified type names when overloads exist."
+          },
+          "argsJson": {
+            "type": "string",
+            "description": "Method arguments as the same argument JSON produced by the DebugTools UI. argsJson must be a JSON object whose values are RunContentDTO objects, for example {\"name\":{\"type\":\"simple\",\"content\":\"codex\"},\"age\":{\"type\":\"simple\",\"content\":18}}. Use parameter names such as name and age when they are available, and keep entries in method declaration order; when reliable parameter names are unavailable, use ordered fallback keys such as arg0 and arg1. Do not wrap this object in targetMethodContent. Supported type values include simple, json_entity, enum, bean, lambda, request, response, file, and class. When parameter names, default values, or RunContentDTO types are unclear, call generate_method_args_template first and use its argsJson result. Omit argsJson or use {} for no-arg methods."
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Headers for this invocation. They override connection headers, which override global headers."
+          },
+          "xxlJobParam": {
+            "type": "string",
+            "description": "Optional XXL-JOB parameter passed to the target method invocation context."
+          },
+          "traceMethodDTO": {
+            "type": "object",
+            "properties": {
+              "traceMethod": {
+                "type": "boolean",
+                "description": "Whether method tracing is enabled."
+              },
+              "traceMaxDepth": {
+                "type": "integer",
+                "description": "Maximum method trace depth."
+              },
+              "traceMyBatis": {
+                "type": "boolean",
+                "description": "Whether MyBatis method tracing is enabled."
+              },
+              "traceSQL": {
+                "type": "boolean",
+                "description": "Whether SQL tracing is enabled."
+              },
+              "traceSkipStartGetSetCheckBox": {
+                "type": "boolean",
+                "description": "Whether getter and setter style methods should be skipped."
+              },
+              "traceBusinessPackageRegexp": {
+                "type": "string",
+                "description": "Package prefix or regexp for business methods that should be traced."
+              },
+              "traceIgnorePackageRegexp": {
+                "type": "string",
+                "description": "Package prefix or regexp for methods that should be ignored by tracing."
+              }
+            },
+            "description": "Optional TraceMethodDTO configuration passed through to DebugTools."
+          },
+          "methodAroundContent": {
+            "type": "string",
+            "description": "Optional Method Around Java source content executed around the target method."
+          },
+          "methodAroundName": {
+            "type": "string",
+            "description": "Optional saved Method Around script name without the .java suffix. Use list_method_around_scripts to discover names; methodAroundContent takes precedence when both are provided."
+          },
+          "methodAroundContentIdentity": {
+            "type": "string",
+            "description": "Optional identity for Method Around content. If omitted, DebugTools uses the md5 of methodAroundContent."
+          },
+          "classLoaderIdentity": {
+            "type": "string",
+            "description": "Optional target classLoader identity. Defaults to the selected classLoader on the connection; omit unless the user selected or requested a specific classLoader."
+          },
+          "timeoutMillis": {
+            "type": "integer",
+            "description": "Timeout in milliseconds while waiting for the target JVM response."
+          },
+          "resultView": {
+            "type": "string",
+            "enum": [
+              "TO_STRING",
+              "JSON",
+              "DEBUG",
+              "NONE"
+            ],
+            "description": "Optional result representation. Defaults to TO_STRING; JSON and DEBUG fetch the existing offsetPath HTTP views."
+          }
+        },
+        "required": [
+          "className",
+          "methodName"
+        ]
+      }
+    },
+    {
+      "name": "list_attachable_jvms",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.list_attachable_jvms",
+      "workflow": {
+        "id": "CONNECTIONS",
+        "name": "DebugToolsConnectionsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsConnectionsToolset"
+      },
+      "outputSchema": {
+        "anyOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "description": "Legacy tool-specific JSON object or MCP error text; use documented per-tool fields. No standardized envelope."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "list_debug_tools_connections",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.list_debug_tools_connections",
+      "workflow": {
+        "id": "CONNECTIONS",
+        "name": "DebugToolsConnectionsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsConnectionsToolset"
+      },
+      "outputSchema": {
+        "anyOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "description": "Legacy tool-specific JSON object or MCP error text; use documented per-tool fields. No standardized envelope."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "list_debug_tools_run_configurations",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHotswapToolset.list_debug_tools_run_configurations",
+      "workflow": {
+        "id": "RUN_AND_HOTSWAP",
+        "name": "DebugToolsHotswapToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHotswapToolset"
+      },
+      "outputSchema": {
+        "anyOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "description": "Legacy tool-specific JSON object or MCP error text; use documented per-tool fields. No standardized envelope."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "moduleName": {
+            "type": "string",
+            "description": "Optional module name filter. Use when the target source path or JVM module is known."
+          },
+          "mainClassNameContains": {
+            "type": "string",
+            "description": "Optional substring filter for run configuration mainClassName."
+          },
+          "typeDisplayName": {
+            "type": "string",
+            "description": "Optional run configuration type display name filter, such as Spring Boot or Application."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "list_method_around_scripts",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.list_method_around_scripts",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "manage_async_context",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_async_context",
+      "workflow": {
+        "id": "RUNTIME_DIAGNOSTICS",
+        "name": "DebugToolsRuntimeDiagnosticsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsRuntimeDiagnosticsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "LIST",
+              "START",
+              "STOP"
+            ],
+            "default": "LIST"
+          },
+          "agentInstanceId": {
+            "type": "string"
+          },
+          "contextId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "classLoaderIdentity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "agentInstanceId"
+        ]
+      }
+    },
+    {
+      "name": "manage_business_log_capture",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_business_log_capture",
+      "workflow": {
+        "id": "LOGS_AND_SQL",
+        "name": "DebugToolsLogsAndSqlToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsLogsAndSqlToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "STATUS",
+              "START",
+              "STOP"
+            ],
+            "default": "STATUS"
+          },
+          "classLoaderIdentity": {
+            "type": "string"
+          },
+          "framework": {
+            "type": "string",
+            "enum": [
+              "LOGBACK",
+              "LOG4J2"
+            ]
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "manage_connection_context",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_connection_context",
+      "workflow": {
+        "id": "CONNECTIONS",
+        "name": "DebugToolsConnectionsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsConnectionsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "UPDATE"
+            ],
+            "default": "GET"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "classLoaderIdentity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "methodAroundName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "manage_debug_tools_connection",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_debug_tools_connection",
+      "workflow": {
+        "id": "CONNECTIONS",
+        "name": "DebugToolsConnectionsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsConnectionsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "CONNECT_REMOTE",
+              "RECONNECT",
+              "DISCONNECT",
+              "STOP_AGENT"
+            ]
+          },
+          "host": {
+            "type": "string"
+          },
+          "tcpPort": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "httpPort": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "remark": {
+            "type": "string"
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "default": 5000
+          }
+        },
+        "required": [
+          "action"
+        ]
+      }
+    },
+    {
+      "name": "manage_kubernetes_connection",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_kubernetes_connection",
+      "workflow": {
+        "id": "KUBERNETES",
+        "name": "DebugToolsKubernetesToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsKubernetesToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "STATUS",
+              "CONNECT",
+              "STOP_TUNNEL"
+            ],
+            "default": "STATUS"
+          },
+          "context": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "pod": {
+            "type": "string"
+          },
+          "container": {
+            "type": "string"
+          },
+          "expectedPodUid": {
+            "type": "string"
+          },
+          "expectedContainerId": {
+            "type": "string"
+          },
+          "pid": {
+            "type": "string"
+          },
+          "injectAgent": {
+            "type": "boolean",
+            "default": false
+          },
+          "remoteTcpPort": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "remoteHttpPort": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "localTcpPort": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "localHttpPort": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "replaceExistingTunnel": {
+            "type": "boolean",
+            "default": false
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "default": 5000
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "manage_method_around_script",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_method_around_script",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "LIST",
+              "GET",
+              "VALIDATE",
+              "SAVE",
+              "DELETE"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 262144
+          },
+          "expectedIdentity": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        "required": [
+          "action"
+        ]
+      }
+    },
+    {
+      "name": "manage_method_preset",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_method_preset",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "LIST",
+              "GET",
+              "SAVE",
+              "DELETE"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "className": {
+            "type": "string"
+          },
+          "methodName": {
+            "type": "string"
+          },
+          "parameterTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "argsJson": {
+            "type": "string",
+            "maxLength": 262144
+          },
+          "expectedIdentity": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        "required": [
+          "action"
+        ]
+      }
+    },
+    {
+      "name": "manage_method_watch",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_method_watch",
+      "workflow": {
+        "id": "RUNTIME_DIAGNOSTICS",
+        "name": "DebugToolsRuntimeDiagnosticsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsRuntimeDiagnosticsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "LIST",
+              "START",
+              "READ",
+              "STOP",
+              "RELEASE"
+            ],
+            "default": "LIST"
+          },
+          "agentInstanceId": {
+            "type": "string"
+          },
+          "watchId": {
+            "type": "string"
+          },
+          "classLoaderIdentity": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "methodName": {
+            "type": "string"
+          },
+          "descriptor": {
+            "type": "string"
+          },
+          "maxCalls": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+          },
+          "durationMillis": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 300000,
+            "default": 30000
+          },
+          "afterCursor": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          }
+        },
+        "required": [
+          "agentInstanceId"
+        ]
+      }
+    },
+    {
+      "name": "manage_run_instance",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_run_instance",
+      "workflow": {
+        "id": "RUN_AND_HOTSWAP",
+        "name": "DebugToolsHotswapToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHotswapToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "LIST",
+              "START",
+              "STOP",
+              "RESTART"
+            ],
+            "default": "LIST"
+          },
+          "instanceId": {
+            "type": "string"
+          },
+          "configurationName": {
+            "type": "string"
+          },
+          "executor": {
+            "type": "string",
+            "enum": [
+              "RUN",
+              "DEBUG"
+            ],
+            "default": "RUN"
+          },
+          "allowParallel": {
+            "type": "boolean",
+            "default": false
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "default": 5000
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "manage_sql_capture",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_sql_capture",
+      "workflow": {
+        "id": "LOGS_AND_SQL",
+        "name": "DebugToolsLogsAndSqlToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsLogsAndSqlToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "GET_MODE",
+              "SET_MODE"
+            ],
+            "default": "GET_MODE"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "Pretty",
+              "Compress",
+              "No"
+            ]
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "manage_trace_selection",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.manage_trace_selection",
+      "workflow": {
+        "id": "RUNTIME_DIAGNOSTICS",
+        "name": "DebugToolsRuntimeDiagnosticsToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsRuntimeDiagnosticsToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "LIST",
+              "ADD",
+              "REMOVE"
+            ],
+            "default": "LIST"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "ALL_CLASSLOADERS"
+            ]
+          },
+          "agentInstanceId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "methodName": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "descriptor": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "read_invocation_stream",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.read_invocation_stream",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "invocationId": {
+            "type": "string"
+          },
+          "afterCursor": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256,
+            "default": 100
+          }
+        },
+        "required": [
+          "invocationId"
+        ]
+      }
+    },
+    {
+      "name": "read_sql_history",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.read_sql_history",
+      "workflow": {
+        "id": "LOGS_AND_SQL",
+        "name": "DebugToolsLogsAndSqlToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsLogsAndSqlToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "historyId": {
+            "type": "string"
+          },
+          "includeLegacy": {
+            "type": "boolean",
+            "default": false
+          },
+          "applicationName": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "default": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          },
+          "maxBytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65536,
+            "default": 16384
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "read_target_application_logs",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.read_target_application_logs",
+      "workflow": {
+        "id": "LOGS_AND_SQL",
+        "name": "DebugToolsLogsAndSqlToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsLogsAndSqlToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "since": {
+            "type": "integer"
+          },
+          "level": {
+            "type": "string"
+          },
+          "keyword": {
+            "type": "string"
+          },
+          "invocationId": {
+            "type": "string"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "release_result_snapshot",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.release_result_snapshot",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "snapshotId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshotId"
+        ]
+      }
+    },
+    {
+      "name": "release_run_results",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.release_run_results",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "offsetPaths": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "maxLength": 512
+            }
+          }
+        },
+        "required": [
+          "offsetPaths"
+        ]
+      }
+    },
+    {
+      "name": "run_and_invoke",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHotswapToolset.run_and_invoke",
+      "workflow": {
+        "id": "METHOD_INVOCATION",
+        "name": "DebugToolsMethodInvocationToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset"
+      },
+      "outputSchema": {
+        "anyOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "description": "Legacy tool-specific JSON object or MCP error text; use documented per-tool fields. No standardized envelope."
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "agentInstanceId": {
+            "type": "string",
+            "description": "Optional expected agent instance ID. New agents enforce it before executing; target changes reject the invocation."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "DebugTools connection id. Omit when the project has exactly one active connection. When multiple active connections exist, connectionId is required to avoid invoking the wrong JVM."
+          },
+          "className": {
+            "type": "string",
+            "description": "Fully qualified target class name."
+          },
+          "methodName": {
+            "type": "string",
+            "description": "Target method name."
+          },
+          "parameterTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Target method parameter type names in declaration order. Provide fully qualified type names when overloads exist."
+          },
+          "argsJson": {
+            "type": "string",
+            "description": "Method arguments as the same argument JSON produced by the DebugTools UI. argsJson must be a JSON object whose values are RunContentDTO objects, for example {\"name\":{\"type\":\"simple\",\"content\":\"codex\"},\"age\":{\"type\":\"simple\",\"content\":18}}. Use parameter names such as name and age when they are available, and keep entries in method declaration order; when reliable parameter names are unavailable, use ordered fallback keys such as arg0 and arg1. Do not wrap this object in targetMethodContent. Supported type values include simple, json_entity, enum, bean, lambda, request, response, file, and class. When parameter names, default values, or RunContentDTO types are unclear, call generate_method_args_template first and use its argsJson result. Omit argsJson or use {} for no-arg methods."
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Headers for this invocation. They override connection headers, which override global headers."
+          },
+          "xxlJobParam": {
+            "type": "string",
+            "description": "Optional XXL-JOB parameter passed to the target method invocation context."
+          },
+          "traceMethodDTO": {
+            "type": "object",
+            "properties": {
+              "traceMethod": {
+                "type": "boolean",
+                "description": "Whether method tracing is enabled."
+              },
+              "traceMaxDepth": {
+                "type": "integer",
+                "description": "Maximum method trace depth."
+              },
+              "traceMyBatis": {
+                "type": "boolean",
+                "description": "Whether MyBatis method tracing is enabled."
+              },
+              "traceSQL": {
+                "type": "boolean",
+                "description": "Whether SQL tracing is enabled."
+              },
+              "traceSkipStartGetSetCheckBox": {
+                "type": "boolean",
+                "description": "Whether getter and setter style methods should be skipped."
+              },
+              "traceBusinessPackageRegexp": {
+                "type": "string",
+                "description": "Package prefix or regexp for business methods that should be traced."
+              },
+              "traceIgnorePackageRegexp": {
+                "type": "string",
+                "description": "Package prefix or regexp for methods that should be ignored by tracing."
+              }
+            },
+            "description": "Optional TraceMethodDTO configuration passed through to DebugTools."
+          },
+          "methodAroundContent": {
+            "type": "string",
+            "description": "Optional Method Around Java source content executed around the target method."
+          },
+          "methodAroundName": {
+            "type": "string",
+            "description": "Optional saved Method Around script name without the .java suffix. Use list_method_around_scripts to discover names; methodAroundContent takes precedence when both are provided."
+          },
+          "methodAroundContentIdentity": {
+            "type": "string",
+            "description": "Optional identity for Method Around content. If omitted, DebugTools uses the md5 of methodAroundContent."
+          },
+          "classLoaderIdentity": {
+            "type": "string",
+            "description": "Optional target classLoader identity. Defaults to the selected classLoader on the connection; omit unless the user selected or requested a specific classLoader."
+          },
+          "timeoutMillis": {
+            "type": "integer",
+            "description": "Timeout in milliseconds while waiting for the target JVM response."
+          },
+          "resultView": {
+            "type": "string",
+            "enum": [
+              "TO_STRING",
+              "JSON",
+              "DEBUG",
+              "NONE"
+            ],
+            "description": "Optional result representation. Defaults to TO_STRING; JSON and DEBUG fetch the existing offsetPath HTTP views."
+          },
+          "sessionName": {
+            "type": "string",
+            "description": "Exact debugger session. Required when its PID cannot be matched to the selected connection."
+          },
+          "compileBeforeReload": {
+            "type": "boolean"
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120000,
+            "description": "Bounded wait for startup, readiness and HotSwap completion."
+          },
+          "operationId": {
+            "type": "string",
+            "description": "Resume an existing HotSwap operation without submitting a duplicate."
+          },
+          "springReadiness": {
+            "type": "string",
+            "enum": [
+              "AUTO",
+              "REQUIRED",
+              "SKIP"
+            ],
+            "description": "AUTO waits for Spring startup and permits NO_SPRING_CONTEXT for non-Spring targets; REQUIRED always requires UP; SKIP explicitly bypasses the gate."
+          },
+          "allowStart": {
+            "type": "boolean"
+          },
+          "runConfigurationName": {
+            "type": "string"
+          },
+          "allowAttach": {
+            "type": "boolean"
+          },
+          "pid": {
+            "type": "string"
+          },
+          "verifyLogs": {
+            "type": "boolean"
+          },
+          "verifySql": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "className",
+          "methodName"
+        ]
+      }
+    },
+    {
+      "name": "search_http_url",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.search_http_url",
+      "workflow": {
+        "id": "HTTP",
+        "name": "DebugToolsHttpToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsHttpToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "path": {
+            "type": "string",
+            "description": "Optional URL path substring."
+          },
+          "method": {
+            "type": "string",
+            "description": "Optional HTTP method."
+          },
+          "moduleName": {
+            "type": "string",
+            "description": "Optional IntelliJ module name."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum results, defaults to 50 and is capped at 200."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "wait_for_application_ready",
+      "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsMethodInvocationToolset.wait_for_application_ready",
+      "workflow": {
+        "id": "SPRING",
+        "name": "DebugToolsSpringToolset",
+        "fullyQualifiedName": "io.github.future0923.debug.tools.idea.mcp.DebugToolsSpringToolset"
+      },
+      "outputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": true
+              },
+              "data": {},
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "requestId",
+              "timestamp"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "success": {
+                "const": false
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "availableOptions": {
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ]
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "success",
+              "error",
+              "requestId",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "projectPath": {
+            "type": "string",
+            "description": "Optional IntelliJ project path used by MCP clients when the active project is ambiguous."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Selected DebugTools connection. Required when more than one is active."
+          },
+          "waitMillis": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120000,
+            "default": 30000
+          }
+        },
+        "required": []
+      }
+    }
+  ]
+}

@@ -1,23 +1,30 @@
-# DebugTools AI for Gemini
+# DebugTools AI workflow
 
-Use `docs/workflow.md` when operating DebugTools IntelliJ MCP tools.
+Load `skills/debug-tools/SKILL.md` (`$debug-tools`) for any DebugTools task. This is
+one skill across connection, run/reload, method invocation/results, HTTP, deployment,
+Spring, runtime diagnosis, logs/SQL and Kubernetes. Read only needed skill references.
+Repository workflow reference: `docs/workflow.md`.
 
-For a complete target snapshot, start with `get_debug_tools_status`. The method invocation tool chain is:
+Use `get_debug_tools_status` / `list_debug_tools_connections` to choose the application
+project and target. Reuse its connection; with no suitable JVM use
+`list_attachable_jvms` then `attach_local_jvm`. Startup is within the user's requested
+scope only; discover exact configurations with `list_debug_tools_run_configurations`
+and use `execute_debug_tools_run_configuration` when appropriate. Rediscover a
+connection after startup and wait for Spring readiness before a Spring-dependent call.
 
-`get_debug_tools_status` -> `list_debug_tools_connections` -> `list_attachable_jvms` -> `attach_local_jvm` -> `generate_method_args_template` -> `invoke_java_method`
+For changed code use `compile_and_reload_modified_files`, retain operationId and
+confirm completion with `get_hotswap_operation`. Then prepare args with
+`generate_method_args_template` when needed and call `invoke_java_method` once.
+`run_and_invoke` can compose reload → invoke → evidence. Keep projectPath,
+connectionId, agentInstanceId and returned handles fixed. Timeout recovery retrieves
+the original result; never repeat a business action merely to obtain output.
 
-After fresh attach or Hotswap startup, call direct DebugTools HTTP `GET /spring/ready` before invoking Spring-like Controller/Service/Bean methods. Use only the selected MCP connection `host` and `httpPort`; poll `STARTING` with `retryable=true`, stop on `retryable=false`, and do not guess localhost/default ports.
-
-Skip attach when an existing active DebugTools connection is suitable. Use `generate_method_args_template` before writing parameterized `argsJson` manually.
-
-The Hotswap run configuration tool chain is:
-
-`list_debug_tools_run_configurations` -> `execute_debug_tools_run_configuration`
-
-Use `compile_and_reload_modified_files` when recent Java changes need IDEA Java Debugger HotSwap reload.
-
-Skip listing only when the exact run configuration name is already known. Hotswap `success=true` means startup was requested, not that DebugTools is connected. Use `get_hotswap_operation` for a returned `operationId` and `run_and_invoke` for an explicit reload → invoke → logs/SQL loop.
-
-Use `resultView=JSON|DEBUG|NONE` on `invoke_java_method` only when requested. Use `read_target_application_logs` and `get_last_sql_statements` with bounded filters for post-invocation evidence. Multiple active connections require an explicit `connectionId`; startup and attach through `run_and_invoke` require an exact run configuration name or PID.
-
-For Spring config reads, use `debug-tools-spring-config`: ask for config keys if missing, discover or attach a DebugTools connection through MCP first, then call direct DebugTools HTTP `POST /spring/config` with a JSON string array body using the selected connection `host` and `httpPort`.
+Only use tools in the current catalog. No shell process/port discovery as an MCP
+substitute. Direct HTTP companions require MCP-selected host/httpPort. Older Spring
+config uses `POST /spring/config` with a JSON string array; readiness uses
+`GET /spring/ready`, retryable=true means bounded polling, retryable=false stops.
+Current MCP provides the preferred Spring config/readiness tools. Preserve generated
+RunContentDTO keys/order, choose ambiguous loaders explicitly, and report truncation,
+unknown states and incomplete cleanup. Stop/release only sessions created for the
+request; keep pre-existing sessions in place. Agent/pod/container replacement ends
+old-handle recovery even when endpoint names match.

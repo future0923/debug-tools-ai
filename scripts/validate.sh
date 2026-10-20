@@ -19,6 +19,9 @@ required_files=(
   "docs/transcripts.md"
   "docs/transcripts-zh.md"
   "docs/workflow.md"
+  "docs/workflow-groups.md"
+  "tests/pressure/27-unified-workflow.md"
+  "tests/pressure/runs/2026-10-19-unified-workflow.md"
   "docs/tool-contracts.md"
   "docs/installation.md"
   "docs/installation-zh.md"
@@ -27,6 +30,12 @@ required_files=(
   "scripts/check-pressure-scenarios.sh"
   "scripts/check-release-readiness.sh"
   "scripts/check-manifest-paths.sh"
+  "scripts/verify-workspace.py"
+  "scripts/check-skill-routing.py"
+  "tests/workspace_verification_test.py"
+  "tests/skill_routing_test.py"
+  "docs/workspace-verification.md"
+  "docs/live-acceptance.md"
   "scripts/doctor.sh"
   "scripts/uninstall.sh"
   "scripts/list-pressure-scenarios.sh"
@@ -57,21 +66,24 @@ required_files=(
   "tests/pressure/12-debug-result-view-http.md"
   "tests/pressure/13-spring-config-http.md"
   "tests/pressure/14-method-invocation-waits-for-spring-ready.md"
-  "skills/debug-tools-method-invocation/SKILL.md"
-  "skills/debug-tools-method-invocation/agents/openai.yaml"
-  "skills/debug-tools-method-invocation/references/args-json.md"
-  "skills/debug-tools-method-invocation/references/http-classloader.md"
-  "skills/debug-tools-method-invocation/references/http-result-view.md"
-  "skills/debug-tools-method-invocation/references/workflow.md"
-  "skills/debug-tools-method-invocation/references/troubleshooting.md"
-  "skills/debug-tools-hotswap/SKILL.md"
-  "skills/debug-tools-hotswap/agents/openai.yaml"
-  "skills/debug-tools-hotswap/assets/pluginIcon.png"
-  "skills/debug-tools-spring-config/SKILL.md"
-  "skills/debug-tools-spring-config/agents/openai.yaml"
-  "skills/debug-tools-spring-config/assets/pluginIcon.png"
-  "skills/debug-tools-spring-config/references/http-spring-config.md"
-  "skills/debug-tools-method-invocation/assets/pluginIcon.png"
+  "skills/debug-tools/SKILL.md"
+  "skills/debug-tools/agents/openai.yaml"
+  "skills/debug-tools/references/invocation.md"
+  "skills/debug-tools/references/run-and-hotswap.md"
+  "skills/debug-tools/references/spring.md"
+  "skills/debug-tools/references/runtime-diagnostics.md"
+  "skills/debug-tools/references/extended-workflows.md"
+  "skills/debug-tools/references/args-json.md"
+  "skills/debug-tools/references/http-classloader.md"
+  "skills/debug-tools/references/http-result-view.md"
+  "skills/debug-tools/references/workflow.md"
+  "skills/debug-tools/references/troubleshooting.md"
+  "skills/debug-tools/assets/pluginIcon.png"
+  "skills/debug-tools/references/results-and-evidence.md"
+  "skills/debug-tools/references/live-observation.md"
+  "docs/runtime-diagnostics.md"
+  "docs/runtime-regression-2026-10-14.md"
+  "skills/debug-tools/references/http-spring-config.md"
   ".codex-plugin/plugin.json"
   ".claude-plugin/plugin.json"
   ".cursor-plugin/plugin.json"
@@ -136,8 +148,14 @@ bash "$ROOT/scripts/check-pressure-scenarios.sh"
 bash "$ROOT/scripts/check-release-readiness.sh"
 bash "$ROOT/scripts/smoke-install.sh"
 bash "$ROOT/scripts/doctor.sh"
+node --test "$ROOT/tests/adapters.test.mjs"
+python3 "$ROOT/tests/doctor_runtime_test.py"
+python3 "$ROOT/scripts/check-tool-contracts.py"
+python3 "$ROOT/tests/tool_contracts_test.py"
+python3 "$ROOT/tests/workspace_verification_test.py"
+python3 "$ROOT/tests/skill_routing_test.py"
 
-for skill_file in "$ROOT/skills/debug-tools-method-invocation/SKILL.md" "$ROOT/skills/debug-tools-hotswap/SKILL.md" "$ROOT/skills/debug-tools-spring-config/SKILL.md"; do
+for skill_file in "$ROOT/skills/debug-tools/SKILL.md"; do
   if ! grep -q "^---" "$skill_file"; then
     echo "Skill is missing YAML frontmatter: ${skill_file#$ROOT/}" >&2
     exit 1
@@ -145,12 +163,12 @@ for skill_file in "$ROOT/skills/debug-tools-method-invocation/SKILL.md" "$ROOT/s
 done
 
 old_skill_name="debug-tools""-mcp"
-if grep -R "$old_skill_name" "$ROOT/README.md" "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" "$ROOT/GEMINI.md" "$ROOT/docs" "$ROOT/skills" "$ROOT/tests/pressure" "$ROOT/package.json" "$ROOT/gemini-extension.json" >/dev/null; then
+if grep -R -E "(^|[^[:alnum:]_-])${old_skill_name}([^[:alnum:]_-]|$)" "$ROOT/README.md" "$ROOT/AGENTS.md" "$ROOT/CLAUDE.md" "$ROOT/GEMINI.md" "$ROOT/docs" "$ROOT/skills" "$ROOT/tests/pressure" "$ROOT/package.json" "$ROOT/gemini-extension.json" >/dev/null; then
   echo "Old skill name remains in public package files" >&2
   exit 1
 fi
 
-if grep -R "../../docs" "$ROOT/skills/debug-tools-method-invocation/SKILL.md" "$ROOT/skills/debug-tools-hotswap/SKILL.md" >/dev/null; then
+if grep -R "../../docs" "$ROOT/skills/debug-tools/SKILL.md" >/dev/null; then
   echo "Skills must not depend on repository-level docs after installation" >&2
   exit 1
 fi
@@ -167,7 +185,7 @@ http_terms=(
 )
 
 for term in "${http_terms[@]}"; do
-  if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/skills/debug-tools-method-invocation" >/dev/null; then
+  if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/skills/debug-tools" >/dev/null; then
     echo "Missing DebugTools HTTP reference: $term" >&2
     exit 1
   fi
@@ -180,7 +198,7 @@ spring_config_terms=(
 )
 
 for term in "${spring_config_terms[@]}"; do
-  if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/docs/workflow.md" "$ROOT/skills/debug-tools-spring-config" "$ROOT/tests/pressure" >/dev/null; then
+  if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/docs/workflow.md" "$ROOT/skills/debug-tools" "$ROOT/tests/pressure" >/dev/null; then
     echo "Missing Spring config HTTP reference: $term" >&2
     exit 1
   fi
@@ -193,7 +211,7 @@ spring_ready_terms=(
 )
 
 for term in "${spring_ready_terms[@]}"; do
-  if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/docs/workflow.md" "$ROOT/skills/debug-tools-method-invocation" "$ROOT/tests/pressure" >/dev/null; then
+  if ! grep -R "$term" "$ROOT/docs/tool-contracts.md" "$ROOT/docs/workflow.md" "$ROOT/skills/debug-tools" "$ROOT/tests/pressure" >/dev/null; then
     echo "Missing Spring readiness reference: $term" >&2
     exit 1
   fi
@@ -202,7 +220,7 @@ done
 for path in \
   "$ROOT/docs/tool-contracts.md" \
   "$ROOT/docs/workflow.md" \
-  "$ROOT/skills/debug-tools-method-invocation" \
+  "$ROOT/skills/debug-tools" \
   "$ROOT/tests/pressure"; do
   if ! grep -R "/spring/ready" "$path" >/dev/null; then
     echo "Missing /spring/ready in ${path#$ROOT/}" >&2

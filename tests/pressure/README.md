@@ -2,8 +2,8 @@
 
 These scenarios test whether an AI agent can follow DebugTools AI skills under realistic pressure:
 
-- `debug-tools-method-invocation` for status, connection, attach, args template, ClassLoader recovery, result views, logs, SQL, and Java method invocation.
-- `debug-tools-hotswap` for listing and starting IntelliJ run configurations, reload operation feedback, and the reload → invoke loop.
+- `debug-tools` for status, connection, attach, args template, ClassLoader recovery, result views, logs, SQL, and Java method invocation.
+- `debug-tools` for listing and starting IntelliJ run configurations, reload operation feedback, and the reload → invoke loop.
 
 They are not unit tests for DebugTools itself. They are skill behavior tests: give one scenario to a fresh agent together with the relevant skill, then compare the answer with the pass criteria.
 

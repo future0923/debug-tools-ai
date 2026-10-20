@@ -1,7 +1,7 @@
 {
   "name": "debug-tools-ai",
   "version": "0.1.0",
-  "description": "AI agent support package for DebugTools MCP workflows: attach JVMs, inspect connections, generate argsJson templates, invoke Java methods, start run configurations with DebugTools Hotswap, and read Spring runtime config keys.",
+  "description": "One DebugTools workflow skill for Java connection, startup/reload, invocation/results, HTTP, deployment, Spring and runtime diagnosis.",
   "author": {
     "name": "DebugTools"
   },
@@ -18,8 +18,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "DebugTools AI",
-    "shortDescription": "Use DebugTools MCP tools for invocation and Hotswap",
-    "longDescription": "Guides AI agents through DebugTools IntelliJ MCP workflows: list connections, attach JVMs, generate method argsJson templates, invoke Java methods, list run configurations, start them with DebugTools Hotswap, and read Spring runtime Environment config keys through documented DebugTools HTTP.",
+    "shortDescription": "Debug Java with DebugTools",
+    "longDescription": "One skill connects target discovery, authorized startup and reload, invocation and original-result recovery, evidence gathering and session cleanup through DebugTools IntelliJ MCP.",
     "developerName": "DebugTools",
     "category": "Coding",
     "capabilities": [
