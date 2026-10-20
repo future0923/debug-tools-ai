@@ -236,6 +236,18 @@ compile_and_reload_modified_files
 get_hotswap_operation             # when an operationId is pending
 ```
 
+Code search workflow reference:
+
+```text
+skills/debug-tools/references/code-search.md
+```
+
+Database query workflow reference:
+
+```text
+skills/debug-tools/references/database-query.md
+```
+
 For a complete loop, use `run_and_invoke`. Starting and attaching are explicit: pass `allowStart=true` with an exact `runConfigurationName`, or `allowAttach=true` with an explicit `pid`.
 
 Details:

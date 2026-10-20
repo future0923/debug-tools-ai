@@ -31,3 +31,12 @@ No guessed ports, invented endpoints or shell discovery as an MCP substitute.
 
 Detailed contracts are in [tool-contracts.md](tool-contracts.md). The installed skill
 is self-contained; it does not require repository docs after installation.
+
+## Code search and read-only data checks
+
+The unified skill also loads [code search](../skills/debug-tools/references/code-search.md)
+or [database query](../skills/debug-tools/references/database-query.md) guidance when
+the current IDE MCP catalog exposes those companion tools. Discover exact parameter
+and response shapes first; do not assume they belong to the exported DebugTools
+agent contracts. Search does not require JVM attachment, and database checks remain
+read-only with bounded queries against an explicitly selected data source/schema.

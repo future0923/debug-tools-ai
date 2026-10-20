@@ -1,6 +1,6 @@
 ---
 name: debug-tools
-description: "Operate DebugTools IntelliJ MCP across one Java debugging workflow: select or attach a JVM, start or reload an application when authorized, prepare and invoke methods, recover existing results and streams, inspect Spring, HTTP, logs, SQL and runtime evidence, or deploy selected code/resources and connect Kubernetes targets. Use for DebugTools tasks and their failures; keep target identity, authorization and cleanup consistent across steps."
+description: "Operate DebugTools IntelliJ MCP across one Java debugging workflow: select or attach a JVM, start or reload an application when authorized, prepare and invoke methods, recover existing results and streams, inspect Spring, HTTP, logs, SQL and runtime evidence, or deploy selected code/resources and connect Kubernetes targets. Also use for code/route search and read-only data checks through available companion IDE tools. Use for DebugTools tasks and their failures; keep target identity, authorization and cleanup consistent across steps."
 ---
 
 # DebugTools Workflows
@@ -64,6 +64,8 @@ deployment, execution, or connection-default changes.
 | Independent JVM/thread/class inspection | [Runtime diagnosis](references/runtime-diagnostics.md) |
 | Observe incoming calls or selected-executor async propagation | [Live observation](references/live-observation.md) |
 | Older plugins need supported HTTP companions | [Readiness/startup details](references/workflow.md), [ClassLoaders](references/http-classloader.md), [result views](references/http-result-view.md), [Spring config](references/http-spring-config.md) |
+| Code, route, symbol or IDE-problem lookup | [Code search](references/code-search.md) |
+| Read-only data checks through configured IDE data sources | [Database query](references/database-query.md) |
 | A structured failure needs recovery | [Troubleshooting](references/troubleshooting.md) |
 
 ## Non-obvious limits

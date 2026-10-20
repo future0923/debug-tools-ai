@@ -28,3 +28,8 @@ RunContentDTO keys/order, choose ambiguous loaders explicitly, and report trunca
 unknown states and incomplete cleanup. Stop/release only sessions created for the
 request; keep pre-existing sessions in place. Agent/pod/container replacement ends
 old-handle recovery even when endpoint names match.
+
+For code/route lookup or read-only data checks, use the unified debug-tools skill
+and load references/code-search.md or references/database-query.md. These optional
+companion IDE tools must be present in the current catalog; confirm their exact
+parameter and response shapes before use. They do not require JVM attachment.

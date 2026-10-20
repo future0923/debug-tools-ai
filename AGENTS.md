@@ -11,6 +11,8 @@ installer, and test changes can all change future agent behavior.
 - Method invocation references live in `skills/debug-tools-method-invocation/references/`.
 - Hotswap run configuration guidance lives in `skills/debug-tools-hotswap/SKILL.md`.
 - Spring configuration guidance lives in `skills/debug-tools-spring-config/SKILL.md`.
+- Code and route search guidance lives in `skills/debug-tools-code-search/SKILL.md`.
+- Read-only database query guidance lives in `skills/debug-tools-database-query/SKILL.md`.
 - Pressure scenarios live in `tests/pressure/`.
 - Installers, validation, release, and adapter sync scripts live in `scripts/`.
 - Agent entry files include `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and packaged
@@ -226,7 +228,9 @@ When DebugTools workflow details are needed, read these in order:
 2. `docs/tool-contracts.md`
 3. `skills/debug-tools-method-invocation/SKILL.md` or
    `skills/debug-tools-hotswap/SKILL.md` or
-   `skills/debug-tools-spring-config/SKILL.md`
+   `skills/debug-tools-spring-config/SKILL.md` or
+   `skills/debug-tools-code-search/SKILL.md` or
+   `skills/debug-tools-database-query/SKILL.md`
 4. Relevant files in `skills/debug-tools-method-invocation/references/`
 
 For release work, read `docs/release.md`. For installation behavior, read

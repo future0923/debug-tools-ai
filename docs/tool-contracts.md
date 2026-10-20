@@ -280,6 +280,30 @@ Optional:
 
 Returns `{count, items, indexState}`. Each item contains stable metadata such as `method`, `path`, `moduleName`, `className`, `methodName`, `targetMethodIdentity`, and `comment`; it does not return PSI or Swing navigation objects.
 
+## Optional companion IDE tools
+
+The following search and database tools are available only when exposed by the
+connected IDE MCP catalog. Confirm runtime schemas before use; they are separate
+from the 56 exported DebugTools agent-tool contracts.
+
+### Code search tools
+
+`search_symbol`, `search_text`, `search_regex`, and `search_file` share one shape: a required `q` query (plus optional `projectPath` and `limit`) with a direct `{items:[{filePath, startLine, startColumn, endLine, endColumn}]}` response. `search_file` matches on file names instead of contents.
+
+`get_file_problems` requires `filePath` and returns `{filePath, errors:[...]}`; an empty `errors` array means "no IDE-reported errors", not a compile guarantee.
+
+`search_ide_actions` takes an action-name `query` and returns candidate `actionId` values. `get_all_open_file_paths` returns `{activeFilePath, openFiles:[...]}`.
+
+All of these tools ignore unknown parameters silently: a misspelled parameter yields unfiltered default results instead of an error, while a missing required parameter fails as `Missing required parameters: q`.
+
+### Database tools
+
+`list_database_connections` returns IDE-managed data sources with `id`, `name`, and `dbms`. `list_database_schemas` requires `connectionId`.
+
+`execute_sql_query` requires `connectionId`, `databaseName` (empty string for Oracle), `schemaName` (uppercase on Oracle), and `queryText`, and returns `{resultSetId, text}` where `text` is CSV-style. Queries are read-only: DML statements report success without committing and PL/SQL blocks time out. Connection failures such as `ORA-17868: unknown host` describe IDE-side network reachability, not a parameter mistake.
+
+Present but not yet behavior-verified: `preview_table_data`, `list_schema_objects`, `get_database_object_description`, `fetch_query_result`, `list_recent_sql_queries`, `cancel_sql_query`, `introspect_schema`.
+
 ## `read_target_application_logs`
 
 Optional:

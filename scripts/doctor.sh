@@ -95,6 +95,8 @@ fi
 echo
 echo "Package checkout:"
 check_repo_file "Workflow skill" "skills/debug-tools/SKILL.md"
+check_repo_file "Code search reference" "skills/debug-tools/references/code-search.md"
+check_repo_file "Database query reference" "skills/debug-tools/references/database-query.md"
 check_repo_file "Workflow metadata" "skills/debug-tools/agents/openai.yaml"
 check_repo_file "Workflow instructions" "docs/workflow.md"
 check_repo_file "Tool contracts" "docs/tool-contracts.md"
