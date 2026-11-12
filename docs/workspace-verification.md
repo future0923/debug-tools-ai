@@ -12,10 +12,6 @@ bash bin/debug-tools-ai verify-workspace --java-home "$JAVA21_HOME" --maven /pat
 `JAVA25_HOME`，或重复传 `--target-java-home /path/to/jdk`。macOS/Linux 标准 JDK
 目录可自动发现。命令不会下载安装 JDK。
 
-IDEA 插件的 `pluginVersion` 可独立发布补丁；`agentVersion` 必须与主项目 Maven
-`revision` 一致，用于公共库依赖与内置 agent 文件名。旧配置未指定 `agentVersion`
-时回退到 `pluginVersion`。例如插件 5.4.1 可继续使用 agent 5.4.0。
-
 首次使用需能解析 Maven/Gradle 依赖，已有缓存可加 `--offline`。
 默认包含完整 `verifyPlugin`。诊断构建问题时可显式 `--skip-verifier`，报告会标记
 PARTIAL 与 verifier=NOT_RUN，不能当作发布兼容性通过。

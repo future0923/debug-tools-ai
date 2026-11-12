@@ -21,14 +21,6 @@ STEPS = ('preflight', 'build-agent', 'agent-tests', 'agent-test-evidence', 'sync
          'ai-validate', 'package-evidence', 'verifier', 'verifier-evidence')
 
 
-def idea_properties(idea):
-    """插件补丁可独立发版，旧项目未指定 agentVersion 时沿用插件版本。"""
-    properties = dict(re.findall(r'^([\w.]+)\s*=\s*(.+)$', (idea / 'gradle.properties').read_text(), re.M))
-    properties = {key: value.strip() for key, value in properties.items()}
-    properties.setdefault('agentVersion', properties['pluginVersion'])
-    return properties
-
-
 def java_major(home):
     release = (Path(home) / 'release').read_text()
     match = re.search(r'^JAVA_VERSION="(?:1\.)?(\d+)', release, re.M)
@@ -181,9 +173,9 @@ def main():
                     raise ValueError(f'Missing workspace source: {path}')
             namespace = {'m': 'http://maven.apache.org/POM/4.0.0'}
             agent_version = ET.parse(agent / 'pom.xml').findtext('m:properties/m:revision', namespaces=namespace)
-            required_agent_version = idea_properties(idea)['agentVersion']
-            if agent_version != required_agent_version:
-                raise ValueError(f'Agent version {agent_version} does not match required agent {required_agent_version}')
+            idea_version = re.search(r'^pluginVersion=(.+)$', (idea / 'gradle.properties').read_text(), re.M).group(1).strip()
+            if agent_version != idea_version:
+                raise ValueError(f'Agent version {agent_version} does not match plugin {idea_version}')
             env.update(JAVA_HOME=str(build_java), PATH=str(build_java / 'bin') + os.pathsep + env['PATH'])
             return dict(buildJava=str(build_java), targets={str(java_major(p)): str(p) for p in targets})
         verification.step('preflight', preflight)
@@ -195,10 +187,10 @@ def main():
                 old.unlink()
         verification.step('agent-tests', lambda: verification.command('agent-tests', maven + ['-pl', 'debug-tools-server,debug-tools-extension/debug-tools-extension-spring', '-am', 'test'], agent, env))
         verification.step('agent-test-evidence', lambda: {module: test_totals(agent / module / 'target/surefire-reports') for module in modules})
-        properties = idea_properties(idea)
+        properties = dict(re.findall(r'^([\w.]+)\s*=\s*(.+)$', (idea / 'gradle.properties').read_text(), re.M))
         version = properties['pluginVersion']
         source = agent / 'debug-tools-attach/target/debug-tools-agent.jar'
-        resource = idea / f'src/main/resources/lib/debug-tools-agent-{properties["agentVersion"]}.jar'
+        resource = idea / f'src/main/resources/lib/debug-tools-agent-{version}.jar'
 
         def sync_agent():
             with zipfile.ZipFile(source) as jar:

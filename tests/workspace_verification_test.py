@@ -12,16 +12,6 @@ spec.loader.exec_module(verifier)
 
 
 class WorkspaceEvidenceTest(unittest.TestCase):
-    def test_plugin_patch_can_keep_agent_version_and_legacy_projects_still_work(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            idea = Path(temporary)
-            properties = idea / 'gradle.properties'
-            properties.write_text('pluginVersion=5.4.1\nagentVersion=5.4.0\n')
-            self.assertEqual('5.4.1', verifier.idea_properties(idea)['pluginVersion'])
-            self.assertEqual('5.4.0', verifier.idea_properties(idea)['agentVersion'])
-            properties.write_text('pluginVersion=5.4.0\n')
-            self.assertEqual('5.4.0', verifier.idea_properties(idea)['agentVersion'])
-
     def test_zero_skipped_only_and_failed_reports_are_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
